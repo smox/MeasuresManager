@@ -15,14 +15,9 @@ public class EntryService {
     }
 
     public void persist(Entry entity) {
-        System.out.println("Try opening a transaction....");
         entryDao.openCurrentSessionwithTransaction();
-        System.out.println("Transaction started....");
-        System.out.println("Starting persisting....");
         entryDao.persist(entity);
-        System.out.println("Entity persisted....");
         entryDao.closeCurrentSessionwithTransaction();
-        System.out.println("Transaction closed....");
     }
 
     public void update(Entry entity) {

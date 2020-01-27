@@ -6,7 +6,6 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import persistence.model.Wine;
 import ui.component.listview.WineCellView;
@@ -15,6 +14,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 public class MainWindow implements Initializable {
+
 
     private ObservableList<Wine> observableWineList = FXCollections.observableArrayList();
 
@@ -35,6 +35,8 @@ public class MainWindow implements Initializable {
     }
 
     private void loadWinesIntoObservableWineList() {
+
+
         observableWineList.addAll(
                 createWine(1, "GV Sandgrube"),
                 createWine(2, "GV - Der Junge"),
