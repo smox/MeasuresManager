@@ -27,13 +27,12 @@
         <property name="show_sql">true</property>
 
         <!-- Drop and re-create the database schema on startup-->
-        <property name="hbm2ddl.auto">create</property>
-        <!--<property name="hbm2ddl.auto">update</property>-->
+        <!--property name="hbm2ddl.auto">create</property-->
+        <property name="hbm2ddl.auto">update</property>
 
         <mapping class="persistence.model.Entry"/>
         <mapping class="persistence.model.Measure"/>
         <mapping class="persistence.model.Setting"/>
-        <mapping class="persistence.model.TypeOfWine"/>
         <mapping class="persistence.model.Wine"/>
 
     </session-factory>

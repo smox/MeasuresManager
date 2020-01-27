@@ -17,14 +17,13 @@ public class Wine {
 
     private String name;
 
-    private String vintage;
-
     @OneToMany(mappedBy = "wine")
     private List<Entry> entries;
 
-    @ManyToOne
-    private TypeOfWine typeOfWine;
-
+    @Override
+    public String toString() {
+        return name;
+    }
 
     /* Boilerplate Code */
     public Long getId() {
@@ -43,14 +42,6 @@ public class Wine {
         this.name = name;
     }
 
-    public String getVintage() {
-        return vintage;
-    }
-
-    public void setVintage(String vintage) {
-        this.vintage = vintage;
-    }
-
     public List<Entry> getEntries() {
         return entries;
     }
@@ -59,11 +50,4 @@ public class Wine {
         this.entries = entries;
     }
 
-    public TypeOfWine getTypeOfWine() {
-        return typeOfWine;
-    }
-
-    public void setTypeOfWine(TypeOfWine typeOfWine) {
-        this.typeOfWine = typeOfWine;
-    }
 }

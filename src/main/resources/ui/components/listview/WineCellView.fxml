@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<GridPane fx:id="gpWineCell" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" >
+  <columnConstraints>
+    <ColumnConstraints hgrow="ALWAYS"/>
+    <ColumnConstraints hgrow="NEVER"/>
+    <ColumnConstraints hgrow="NEVER"/>
+  </columnConstraints>
+   <children>
+      <TextField fx:id="txtDesignation" GridPane.columnIndex="0" disable="true" opacity="0.8"/>
+      <Button fx:id="btnEdit" mnemonicParsing="false" GridPane.columnIndex="1" />
+      <Button fx:id="btnDelete" mnemonicParsing="false" GridPane.columnIndex="2"/>
+   </children>
+</GridPane>

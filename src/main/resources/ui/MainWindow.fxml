@@ -3,7 +3,9 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="629.0" prefWidth="861.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.MainWindow">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+            prefHeight="629.0" prefWidth="861.0" xmlns="http://javafx.com/javafx/10.0.2-internal"
+            xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.MainWindow">
    <top>
       <MenuBar BorderPane.alignment="CENTER">
         <menus>
@@ -28,12 +30,9 @@
       </MenuBar>
    </top>
    <center>
-      <SplitPane dividerPositions="0.2" prefHeight="160.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+      <SplitPane dividerPositions="0.3" prefHeight="160.0" prefWidth="200.0" BorderPane.alignment="CENTER">
          <items>
             <BorderPane prefHeight="200.0" prefWidth="200.0">
-                <center>
-                    <ListView prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
-                </center>
                <top>
                   <StackPane prefHeight="32.0" prefWidth="168.0" BorderPane.alignment="CENTER">
                      <children>
@@ -41,6 +40,13 @@
                      </children>
                   </StackPane>
                </top>
+                <center>
+                    <ListView fx:id="lvWines" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+                        <placeholder>
+                            <Label text="Keine Weine vorhanden!" />
+                        </placeholder>
+                    </ListView>
+                </center>
             </BorderPane>
             <TableView prefHeight="598.0" prefWidth="604.0">
               <columns>

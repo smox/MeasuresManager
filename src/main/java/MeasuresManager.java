@@ -7,11 +7,13 @@ import javafx.stage.WindowEvent;
 import persistence.service.SeedDataService;
 
 import java.io.IOException;
-import java.util.Objects;
+import java.util.Locale;
+
 
 public class MeasuresManager extends Application  {
 
     public static void main(String[] args) {
+        Locale.setDefault(Locale.GERMAN);
         createSeedData();
         launch(args);
     }

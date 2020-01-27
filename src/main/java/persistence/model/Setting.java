@@ -21,9 +21,11 @@ public class Setting {
 
     private String companyNumber;
 
+    private String currentYear;
+
     private Date deletedAt;
 
-    protected Setting(){}
+    public Setting(){}
 
 
     /* Boilerplate Code */
@@ -49,5 +51,13 @@ public class Setting {
 
     public void setDeletedAt(Date deletedAt) {
         this.deletedAt = deletedAt;
+    }
+
+    public String getCurrentYear() {
+        return currentYear;
+    }
+
+    public void setCurrentYear(String currentYear) {
+        this.currentYear = currentYear;
     }
 }
