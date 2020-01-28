@@ -4,7 +4,9 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import persistence.model.Setting;
 import persistence.service.SeedDataService;
+import persistence.service.SettingService;
 
 import java.io.IOException;
 import java.util.Locale;
@@ -12,9 +14,13 @@ import java.util.Locale;
 
 public class MeasuresManager extends Application  {
 
+    public static SettingService settingService = new SettingService();
+    public static Setting setting;
+
     public static void main(String[] args) {
-        Locale.setDefault(Locale.GERMAN);
+        Locale.setDefault(Locale.GERMANY);
         createSeedData();
+        setting = settingService.findCurrent();
         launch(args);
     }
 
@@ -22,7 +28,7 @@ public class MeasuresManager extends Application  {
     public void start(Stage stage) throws IOException {
         Parent root = FXMLLoader.load(getClass().getResource("ui/MainWindow.fxml"));
         Scene scene = new Scene(root, 1000, 600);
-        stage.setTitle("Maßnahmenverwaltung - Winzerhof Schwanzelberger");
+        stage.setTitle("Maßnahmenverwaltung - Winzerhof Schwanzelberger - "+setting.getCurrentYear());
         stage.setScene(scene);
         stage.getScene().getWindow().addEventFilter(WindowEvent.WINDOW_CLOSE_REQUEST, this::closeWindowEvent);
         stage.show();

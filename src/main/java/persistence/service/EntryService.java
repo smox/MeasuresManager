@@ -1,7 +1,10 @@
 package persistence.service;
 
+import org.hibernate.Session;
 import persistence.dao.EntryDao;
 import persistence.model.Entry;
+import persistence.model.Measure;
+import persistence.model.Wine;
 
 import java.util.List;
 
@@ -35,16 +38,23 @@ public class EntryService {
 
     public void delete(Long id) {
         entryDao.openCurrentSessionwithTransaction();
-        Entry book = entryDao.findById(id);
-        entryDao.delete(book);
+        Entry entry = entryDao.findById(id);
+        entryDao.delete(entry);
         entryDao.closeCurrentSessionwithTransaction();
     }
 
     public List<Entry> findAll() {
         entryDao.openCurrentSession();
-        List<Entry> books = entryDao.findAll();
+        List<Entry> entries = entryDao.findAll();
         entryDao.closeCurrentSession();
-        return books;
+        return entries;
+    }
+
+    public List<Entry> findAllByWineAndYear(Wine wine, String year) {
+        entryDao().openCurrentSession();
+        List<Entry> entries = entryDao().findAllByWineAndYear(wine, year);
+        entryDao().closeCurrentSession();
+        return entries;
     }
 
     public EntryDao entryDao() {

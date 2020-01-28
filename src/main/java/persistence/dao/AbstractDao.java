@@ -10,6 +10,7 @@ public class AbstractDao<T> extends Dao implements ICrudDao<T> {
     final Class<T> typeParameterClass;
 
     public AbstractDao(Class<T> typeParameterClass) {
+        super();
         this.typeParameterClass = typeParameterClass;
     }
 

@@ -42,19 +42,20 @@ public class MeasureService {
 
     public void delete(Long id) {
         measureDao.openCurrentSessionwithTransaction();
-        Measure book = measureDao.findById(id);
-        measureDao.delete(book);
+        Measure measure = measureDao.findById(id);
+        measureDao.delete(measure);
         measureDao.closeCurrentSessionwithTransaction();
     }
 
     public List<Measure> findAll() {
         measureDao.openCurrentSession();
-        List<Measure> books = measureDao.findAll();
+        List<Measure> measures = measureDao.findAll();
         measureDao.closeCurrentSession();
-        return books;
+        return measures;
     }
 
     public MeasureDao entryDao() {
         return measureDao;
     }
+
 }

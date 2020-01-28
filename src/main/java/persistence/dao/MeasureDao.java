@@ -4,6 +4,7 @@ package persistence.dao;
 import org.hibernate.criterion.Restrictions;
 import persistence.model.Measure;
 
+import java.util.List;
 
 
 public class MeasureDao extends AbstractDao<Measure> {

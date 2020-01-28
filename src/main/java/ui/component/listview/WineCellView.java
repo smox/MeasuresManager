@@ -5,8 +5,12 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import persistence.model.Wine;
+import ui.component.listview.actions.WineDeleteAction;
+import ui.component.listview.actions.WineModifyAction;
+import ui.component.listview.actions.WineSelectAction;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -27,18 +31,23 @@ public class WineCellView extends ListCell<Wine> {
     @FXML
     private Button btnDelete;
 
-    public WineCellView() {
+    private WineDeleteAction deleteAction;
+    private WineModifyAction modifyAction;
+    private WineSelectAction selectAction;
+
+    public WineCellView(WineDeleteAction deleteAction, WineModifyAction modifyAction, WineSelectAction selectAction) {
         initializeFXML();
         initializeButtons();
-
-
-
+        this.deleteAction = deleteAction;
+        this.modifyAction = modifyAction;
+        this.selectAction = selectAction;
     }
 
     private void initializeButtons() {
         addIconToButton(btnEdit, "/assets/edit.png");
         addIconToButton(btnDelete, "/assets/delete.png");
     }
+
 
     private void addIconToButton(Button btnDelete, String pathToIcon) {
         Image imageDelete = new Image(getClass().getResourceAsStream(pathToIcon));
@@ -47,7 +56,6 @@ public class WineCellView extends ListCell<Wine> {
         imageView.setFitWidth(16);
         btnDelete.setGraphic(imageView);
     }
-
 
     @Override
     protected void updateItem(Wine wine, boolean empty) {
@@ -60,10 +68,12 @@ public class WineCellView extends ListCell<Wine> {
 
             txtDesignation.setText(wine.getName());
 
+            addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEvent -> selectAction.selectWine(wine));
+
             btnEdit.setOnAction(actionEvent -> {
                 if(!txtDesignation.isDisabled()) {
                     txtDesignation.setStyle("-fx-opacity: 0.8;");
-                    System.out.println("TODO: Save changes...");
+                    modifyAction.modifyWine(wine, txtDesignation.getText());
                 } else {
                     txtDesignation.setStyle("-fx-opacity: 1.0;");
                 }
@@ -80,7 +90,7 @@ public class WineCellView extends ListCell<Wine> {
 
                 Optional<ButtonType> result = alert.showAndWait();
                 if (result.get() == ButtonType.OK){
-                    System.out.println("TODO: Wein löschen...");
+                    deleteAction.deleteWine(wine);
                 }
             });
 

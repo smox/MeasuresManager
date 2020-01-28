@@ -50,4 +50,12 @@ public class SettingService {
     public SettingDao settingDao() {
         return settingDao;
     }
+
+    public Setting findCurrent() {
+        settingDao().openCurrentSession();
+        Setting setting = settingDao().findCurrent();
+        System.out.println("====== "+ setting +" ======");
+        settingDao().closeCurrentSession();
+        return setting;
+    }
 }

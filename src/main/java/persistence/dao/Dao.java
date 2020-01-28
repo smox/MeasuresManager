@@ -7,17 +7,20 @@ import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
 
 public class Dao {
+
     private Session currentSession;
 
     private Transaction currentTransaction;
 
+    private SessionFactory sessionFactory;
+
     public Session openCurrentSession() {
-        currentSession = getSessionFactory().openSession();
+        currentSession = sessionFactory.openSession();
         return currentSession;
     }
 
     public Session openCurrentSessionwithTransaction() {
-        currentSession = getSessionFactory().openSession();
+        currentSession = sessionFactory.openSession();
         currentTransaction = currentSession.beginTransaction();
         return currentSession;
     }
@@ -55,4 +58,7 @@ public class Dao {
         this.currentTransaction = currentTransaction;
     }
 
+    public Dao(){
+        sessionFactory = getSessionFactory();
+    }
 }
