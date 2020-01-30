@@ -65,30 +65,27 @@ public class WineCellView extends ListCell<Wine> {
 
             btnEdit.setOnAction(actionEvent -> {
                 if(!txtDesignation.isDisabled()) {
-                    txtDesignation.setStyle("-fx-opacity: 0.8;");
-                    modifyAction.modifyWine(wine, txtDesignation.getText());
+                    updateWine(wine);
                 } else {
                     txtDesignation.setStyle("-fx-opacity: 1.0;");
                 }
                 txtDesignation.setDisable(!txtDesignation.isDisabled());
             });
 
-            btnDelete.setOnAction(actionEvent -> {
-
-                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                alert.setTitle("Wein löschen");
-                alert.setHeaderText("Bist du dir sicher, dass du den Wein "+wine.getName()+" löschen willst?");
-                alert.setContentText("Drücke auf OK um den Wein zu löschen oder auf" +
-                        "Abbrechen um den Vorgang abzubrechen");
-
-                Optional<ButtonType> result = alert.showAndWait();
-                if (result.get() == ButtonType.OK){
-                    deleteAction.deleteWine(wine);
-                }
+            txtDesignation.setOnAction(actionEvent -> {
+                updateWine(wine);
+                txtDesignation.setDisable(!txtDesignation.isDisabled());
             });
+
+            btnDelete.setOnAction(actionEvent -> deleteAction.deleteWine(wine));
 
             setGraphic(gpWineCell);
         }
+    }
+
+    private void updateWine(Wine wine) {
+        txtDesignation.setStyle("-fx-opacity: 0.8;");
+        modifyAction.modifyWine(wine, txtDesignation.getText());
     }
 
     private void initializeFXML() {

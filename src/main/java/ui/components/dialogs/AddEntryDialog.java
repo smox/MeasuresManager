@@ -192,7 +192,6 @@ public class AddEntryDialog extends Dialog<Entry> implements Initializable {
             entry.setRealizedAt(Date.valueOf(realizedAt));
             entry.setContainer(container);
             entry.setWine(wine);
-            entry.setYear(year);
             entry.setAmount(amount);
             entry.setMeasures(checkedMeasures);
 

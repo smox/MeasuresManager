@@ -23,8 +23,6 @@ public class Entry {
     @Column(nullable = false)
     private String container;
 
-    private String year;
-
     @ManyToMany
     @JoinTable(
             name = "entry_to_measure",
@@ -71,14 +69,6 @@ public class Entry {
 
     public void setContainer(String container) {
         this.container = container;
-    }
-
-    public String getYear() {
-        return year;
-    }
-
-    public void setYear(String year) {
-        this.year = year;
     }
 
     public List<Measure> getMeasures() {
