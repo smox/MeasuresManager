@@ -23,6 +23,11 @@ public class Measure {
     @ManyToMany(mappedBy = "measures")
     private List<Entry> entries;
 
+    @Override
+    public String toString() {
+        return name;
+    }
+
     /* Boilerplate Code */
 
     public Long getId() {

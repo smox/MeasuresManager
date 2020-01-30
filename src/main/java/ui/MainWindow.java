@@ -5,23 +5,29 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import org.controlsfx.validation.ValidationSupport;
 import org.controlsfx.validation.Validator;
+import persistence.dao.ContainerAmountMapDao;
 import persistence.model.Entry;
-import persistence.model.Measure;
 import persistence.model.Setting;
 import persistence.model.Wine;
-import persistence.service.EntryService;
-import persistence.service.MeasureService;
-import persistence.service.SettingService;
-import persistence.service.WineService;
-import ui.component.listview.WineCellView;
-import ui.component.listview.actions.WineDeleteAction;
-import ui.component.listview.actions.WineModifyAction;
-import ui.component.listview.actions.WineSelectAction;
+import persistence.service.*;
+import ui.components.dialogs.AddEntryDialog;
+import ui.components.dialogs.Alerts;
+import ui.components.dialogs.GenericAddDialog;
+import ui.components.listview.WineCellView;
+import ui.components.listview.actions.WineDeleteAction;
+import ui.components.listview.actions.WineModifyAction;
+import ui.components.listview.actions.WineSelectAction;
 
+import java.io.IOException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -34,6 +40,8 @@ public class MainWindow implements Initializable {
     public static WineService wineService = new WineService();
     public static EntryService entryService = new EntryService();
     public static SettingService settingService = new SettingService();
+    public static MeasureService measureService = new MeasureService();
+    public static ContainerAmountMapService containerAmountMapService = new ContainerAmountMapService();
 
     public static Setting setting;
 
@@ -70,6 +78,37 @@ public class MainWindow implements Initializable {
         lvWines.setCellFactory(lvWines -> new WineCellView(wineDeleteAction, wineModifyAction, wineSelectAction));
 
         tblViewColRealizedAt.setCellFactory(column -> createEntryDateTableCellFactory());
+    }
+
+    @FXML
+    void onOpenAddEntryDialog(ActionEvent event) throws IOException {
+
+        // TODO Eventuell Mehrfachauswahl möglich?
+        var selectedWines = lvWines.getSelectionModel().getSelectedItems();
+
+        if(selectedWines != null && selectedWines.size() == 1) {
+
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/ui/components/dialogs/AddEntryDialog.fxml"));
+            Parent parent = fxmlLoader.load();
+            AddEntryDialog addEntryDialog = fxmlLoader.<AddEntryDialog>getController();
+            addEntryDialog.setParent(this);
+            addEntryDialog.setAddEntryDialogSuccessAction(() -> loadWineIntoTableView(selectedWines.get(0)));
+
+            addEntryDialog.setWine(selectedWines.get(0));
+            addEntryDialog.setYear(setting.getCurrentYear());
+
+            Scene scene = new Scene(parent);
+            Stage stage = new Stage();
+            stage.setTitle("Neuen Eintrag hinzufügen");
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setScene(scene);
+            stage.showAndWait();
+
+        } else {
+            Alerts.showErrorDialog(
+                    "Fehler bei der Weinauswahl",
+                    "Es muss ein Wein ausgewählt sein um einen Eintrag hinzuzufügen");
+        }
     }
 
     private TableCell<Entry, Date> createEntryDateTableCellFactory() {
@@ -116,32 +155,22 @@ public class MainWindow implements Initializable {
     }
 
     public void addWine(ActionEvent actionEvent) {
+        new GenericAddDialog(
+                "Neuen Wein hinzufügen",
+                "Neuer Wein",
+                "Bitte gib hier den Namen des neuen Wein ein:",
+                "Name des Weins",
+                this::addWineAction
+        );
+    }
 
-        TextInputDialog dialog = new TextInputDialog("Name des Weins");
-        dialog.setTitle("Neuen Wein hinzufügen");
-        dialog.setHeaderText("Neuer Wein");
-        dialog.setContentText("Bitte gib hier den Namen des neuen Wein ein:");
+    private void addWineAction(Optional<String> result) {
+        String nameOfWine = result.get().trim();
 
-        TextField txtWineName = dialog.getEditor();
-        txtWineName.textProperty().addListener((observableValue, oldValue, newValue) -> {
-            boolean isTextBlank = txtWineName.getText().trim().isBlank();
-            dialog.getDialogPane().lookupButton(ButtonType.OK).setDisable(isTextBlank);
-        });
+        Wine wine = new Wine();
+        wine.setName(nameOfWine);
+        wineService.persist(wine);
 
-        ValidationSupport validationSupport = new ValidationSupport();
-        validationSupport.registerValidator(txtWineName,
-                Validator.createEmptyValidator("Es muss ein Weinname eingegeben werden"));
-
-        Optional<String> result = dialog.showAndWait();
-        result.ifPresent(name -> {
-
-            String nameOfWine = result.get().trim();
-
-            Wine wine = new Wine();
-            wine.setName(nameOfWine);
-            wineService.persist(wine);
-
-            loadWinesIntoObservableWineList();
-        });
+        loadWinesIntoObservableWineList();
     }
 }

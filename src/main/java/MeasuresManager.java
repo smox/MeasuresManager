@@ -27,7 +27,7 @@ public class MeasuresManager extends Application  {
     @Override
     public void start(Stage stage) throws IOException {
         Parent root = FXMLLoader.load(getClass().getResource("ui/MainWindow.fxml"));
-        Scene scene = new Scene(root, 1000, 600);
+        Scene scene = new Scene(root);
         stage.setTitle("Maßnahmenverwaltung - Winzerhof Schwanzelberger - "+setting.getCurrentYear());
         stage.setScene(scene);
         stage.getScene().getWindow().addEventFilter(WindowEvent.WINDOW_CLOSE_REQUEST, this::closeWindowEvent);

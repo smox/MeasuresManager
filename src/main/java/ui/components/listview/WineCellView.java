@@ -1,4 +1,4 @@
-package ui.component.listview;
+package ui.components.listview;
 
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -8,9 +8,10 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import persistence.model.Wine;
-import ui.component.listview.actions.WineDeleteAction;
-import ui.component.listview.actions.WineModifyAction;
-import ui.component.listview.actions.WineSelectAction;
+import ui.components.listview.actions.WineDeleteAction;
+import ui.components.listview.actions.WineModifyAction;
+import ui.components.listview.actions.WineSelectAction;
+import utils.ButtonUtils;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -44,18 +45,10 @@ public class WineCellView extends ListCell<Wine> {
     }
 
     private void initializeButtons() {
-        addIconToButton(btnEdit, "/assets/edit.png");
-        addIconToButton(btnDelete, "/assets/delete.png");
+        ButtonUtils.addIconToButton(btnEdit, "/assets/edit.png");
+        ButtonUtils.addIconToButton(btnDelete, "/assets/delete.png");
     }
 
-
-    private void addIconToButton(Button btnDelete, String pathToIcon) {
-        Image imageDelete = new Image(getClass().getResourceAsStream(pathToIcon));
-        ImageView imageView = new ImageView(imageDelete);
-        imageView.setFitHeight(16);
-        imageView.setFitWidth(16);
-        btnDelete.setGraphic(imageView);
-    }
 
     @Override
     protected void updateItem(Wine wine, boolean empty) {
