@@ -48,4 +48,18 @@ public class WineService {
     public WineDao wineDao() {
         return wineDao;
     }
+
+    public Wine findByNameAndYear(String nameOfWine, String year) {
+        wineDao().openCurrentSession();
+        var wine = wineDao().findByNameAndYear(nameOfWine, year);
+        wineDao().closeCurrentSession();
+        return wine;
+    }
+
+    public List<Wine> findAllByYear(String year) {
+        wineDao().openCurrentSession();
+        var wine = wineDao.findAllByYear(year);
+        wineDao().closeCurrentSession();
+        return wine;
+    }
 }

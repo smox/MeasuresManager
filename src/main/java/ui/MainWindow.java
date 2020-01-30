@@ -12,9 +12,6 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import org.controlsfx.validation.ValidationSupport;
-import org.controlsfx.validation.Validator;
-import persistence.dao.ContainerAmountMapDao;
 import persistence.model.Entry;
 import persistence.model.Setting;
 import persistence.model.Wine;
@@ -26,6 +23,8 @@ import ui.components.listview.WineCellView;
 import ui.components.listview.actions.WineDeleteAction;
 import ui.components.listview.actions.WineModifyAction;
 import ui.components.listview.actions.WineSelectAction;
+import utils.ButtonUtils;
+import utils.CollectionUtils;
 
 import java.io.IOException;
 import java.net.URL;
@@ -131,25 +130,55 @@ public class MainWindow implements Initializable {
     }
 
     private void updateWineAndRefreshList(Wine wine, String newName) {
-        wine.setName(newName);
-        wineService.update(wine);
+        newName = newName.trim();
+        var existingWine = wineService.findByNameAndYear(newName, setting.getCurrentYear());
+        if(existingWine == null) {
+            wine.setName(newName);
+            wineService.update(wine);
+        } else if(!existingWine.getId().equals(wine.getId())) {
+            Alerts.showErrorDialog(
+                    "Wein bereits vorhanden",
+                    "Der Wein mit dem Namen "+existingWine.getName()
+                            +" gibt es in dem Jahr "+existingWine.getYear()+" bereits!");
+        }
         loadWinesIntoObservableWineList();
     }
 
     private void deleteWineAndRefreshList(Wine wine) {
-        wineService.delete(wine.getId());
-        loadWinesIntoObservableWineList();
+
+        Optional<ButtonType> deleteWine = Alerts.showYesNoDialog("Wein löschen",
+                "Soll der Wein " + wine.getName() + " wirklich gelöscht werden?",
+                "Drücke auf Ja um den Löschvorgang fortzusetzen oder auf Nein um den Vorgang abzubrechen");
+
+        if(ButtonUtils.isButton(deleteWine, ButtonType.YES)) {
+            List<Entry> allEntriesByWineAndYear = entryService.findAllByWine(wine);
+            if(CollectionUtils.isNotEmpty(allEntriesByWineAndYear)) {
+                Optional<ButtonType> deleteAllEntriesForWine = Alerts.showYesNoDialog("Achtung!",
+                        "Achtung: Es gibt noch Einträge die " + wine.getName() + " zugeordnet sind!",
+                        "Sollen alle zugeordneten Einträge unwiderruflich gelöscht werden?");
+
+                if(ButtonUtils.isButton(deleteAllEntriesForWine, ButtonType.YES)) {
+                    allEntriesByWineAndYear.stream().map(Entry::getId).forEach(entryService::delete);
+                    observableEntryList.clear();
+                    wineService.delete(wine.getId());
+                    loadWinesIntoObservableWineList();
+                }
+            } else {
+                wineService.delete(wine.getId());
+                loadWinesIntoObservableWineList();
+            }
+        }
     }
 
     private void loadWineIntoTableView(Wine wine) {
-        var allEntries = entryService.findAllByWineAndYear(wine, setting.getCurrentYear());
+        var allEntries = entryService.findAllByWine(wine);
         observableEntryList.clear();
         observableEntryList.addAll(allEntries);
         tblViewMeasures.setItems(observableEntryList);
     }
 
     private void loadWinesIntoObservableWineList() {
-        List<Wine> wines = wineService.findAll();
+        List<Wine> wines = wineService.findAllByYear(setting.getCurrentYear());
         observableWineList.clear();
         observableWineList.addAll(wines);
     }
@@ -167,10 +196,19 @@ public class MainWindow implements Initializable {
     private void addWineAction(Optional<String> result) {
         String nameOfWine = result.get().trim();
 
-        Wine wine = new Wine();
-        wine.setName(nameOfWine);
-        wineService.persist(wine);
+        var wine = wineService.findByNameAndYear(nameOfWine, setting.getCurrentYear());
+        System.out.println(wine);
+        if(wine == null) {
+            wine = new Wine();
+            wine.setName(nameOfWine);
+            wine.setYear(setting.getCurrentYear());
+            wineService.persist(wine);
+            loadWinesIntoObservableWineList();
+        } else {
+            Alerts.showErrorDialog(
+                    "Wein bereits vorhanden",
+                    "Der Wein mit dem Namen "+wine.getName()+" gibt es in dem Jahr "+wine.getYear()+" bereits!");
+        }
 
-        loadWinesIntoObservableWineList();
     }
 }

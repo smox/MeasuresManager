@@ -15,11 +15,9 @@ public class EntryDao extends AbstractDao<Entry> {
     }
 
 
-    public List<Entry> findAllByWineAndYear(Wine wine, String year) {
+    public List<Entry> findAllByWineAndYear(Wine wine) {
         return (List<Entry>)getCurrentSession().createCriteria(Entry.class)
                 .add(Restrictions.eq("wine", wine))
-                .add(Restrictions.eq("year", year))
                 .list();
     }
-
 }

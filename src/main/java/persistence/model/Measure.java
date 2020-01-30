@@ -18,8 +18,6 @@ public class Measure {
     @Column(nullable = false)
     private String name;
 
-    private Date deletedAt;
-
     @ManyToMany(mappedBy = "measures")
     private List<Entry> entries;
 
@@ -44,14 +42,6 @@ public class Measure {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public Date getDeletedAt() {
-        return deletedAt;
-    }
-
-    public void setDeletedAt(Date deletedAt) {
-        this.deletedAt = deletedAt;
     }
 
     public List<Entry> getEntries() {

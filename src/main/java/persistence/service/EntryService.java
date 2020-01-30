@@ -50,14 +50,14 @@ public class EntryService {
         return entries;
     }
 
-    public List<Entry> findAllByWineAndYear(Wine wine, String year) {
-        entryDao().openCurrentSession();
-        List<Entry> entries = entryDao().findAllByWineAndYear(wine, year);
-        entryDao().closeCurrentSession();
-        return entries;
-    }
-
     public EntryDao entryDao() {
         return entryDao;
+    }
+
+    public List<Entry> findAllByWine(Wine wine) {
+        entryDao().openCurrentSession();
+        List<Entry> entries = entryDao().findAllByWineAndYear(wine);
+        entryDao().closeCurrentSession();
+        return entries;
     }
 }
