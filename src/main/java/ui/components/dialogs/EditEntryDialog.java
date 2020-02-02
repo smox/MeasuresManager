@@ -7,15 +7,11 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.control.Button;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.controlsfx.control.CheckListView;
 import persistence.model.ContainerAmountMap;
 import persistence.model.Entry;
 import persistence.model.Measure;
-import persistence.model.Wine;
 import ui.MainWindow;
 import ui.components.dialogs.actions.IAddOrEditEntryDialogSuccessAction;
 import ui.components.spinner.CustomIntegerSpinnerValueFactory;
@@ -30,13 +26,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
-public class AddEntryDialog extends Dialog<Entry> implements Initializable {
+public class EditEntryDialog extends Dialog<Entry> implements Initializable {
 
     MainWindow mainWindow;
 
-    private Wine wine;
-
-    private String year;
+    private Entry entry;
 
     private IAddOrEditEntryDialogSuccessAction addEntryDialogSuccessAction;
 
@@ -63,7 +57,6 @@ public class AddEntryDialog extends Dialog<Entry> implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-
         loadMeasures();
         addButtonIcons();
         addButtonActions();
@@ -74,9 +67,23 @@ public class AddEntryDialog extends Dialog<Entry> implements Initializable {
         cbMeasures.getItems().addAll(observableMeasureList);
     }
 
+    public void initializeFields() {
+        dpRealizedAt.setValue(entry.getRealizedAt() != null ? entry.getRealizedAt().toLocalDate() : LocalDate.now());
+        tfContainer.setText(entry.getContainer());
+        spinAmount.getEditor().setText(entry.getAmount() != null ? String.valueOf(entry.getAmount()) : "0");
+        spinAmount.commitValue();
+
+        for(int i = 0; i < cbMeasures.getItems().size(); i++) {
+            Measure measure = cbMeasures.getItems().get(i);
+            if(entry.getMeasures().contains(measure)) {
+                cbMeasures.getCheckModel().check(i);
+            }
+        }
+
+    }
+
     private void addContainerListener() {
         tfContainer.focusedProperty().addListener((obs, oldVal, newVal) -> {
-            System.out.println(newVal ? "Focused" : "Unfocused");
             if(!newVal) {
                 Integer amountByContainer = getAmountByContainer(tfContainer.getText());
                 if(amountByContainer != null) {
@@ -188,14 +195,12 @@ public class AddEntryDialog extends Dialog<Entry> implements Initializable {
             }
 
             // Save Entry
-            Entry entry = new Entry();
             entry.setRealizedAt(Date.valueOf(realizedAt));
             entry.setContainer(container);
-            entry.setWine(wine);
             entry.setAmount(amount);
             entry.setMeasures(checkedMeasures);
 
-            MainWindow.entryService.persist(entry);
+            MainWindow.entryService.update(entry);
 
             addEntryDialogSuccessAction.onSuccess(entry);
             closeDialog(actionEvent);
@@ -207,6 +212,7 @@ public class AddEntryDialog extends Dialog<Entry> implements Initializable {
         try {
             dpRealizedAt.getValue();
         } catch (Exception e) {
+            // TODO logging
             System.out.println("Fehler beim parsen des Datums");
             e.printStackTrace();
             return false;
@@ -239,15 +245,11 @@ public class AddEntryDialog extends Dialog<Entry> implements Initializable {
         stage.close();
     }
 
-    public void setWine(Wine wine) {
-        this.wine = wine;
-    }
-
-    public void setYear(String year) {
-        this.year = year;
-    }
-
     public void setAddEntryDialogSuccessAction(IAddOrEditEntryDialogSuccessAction addEntryDialogSuccessAction) {
         this.addEntryDialogSuccessAction = addEntryDialogSuccessAction;
+    }
+
+    public void setEntry(Entry entry) {
+        this.entry = entry;
     }
 }

@@ -18,6 +18,7 @@ import persistence.model.Wine;
 import persistence.service.*;
 import ui.components.dialogs.AddEntryDialog;
 import ui.components.dialogs.Alerts;
+import ui.components.dialogs.EditEntryDialog;
 import ui.components.dialogs.GenericAddDialog;
 import ui.components.listview.WineCellView;
 import ui.components.listview.actions.WineDeleteAction;
@@ -57,6 +58,12 @@ public class MainWindow implements Initializable {
     private ListView<Wine> lvWines;
 
     @FXML
+    private Button btnEditEntry;
+
+    @FXML
+    private Button btnDeleteEntry;
+
+    @FXML
     private void closeWindowEvent(ActionEvent event) {
         //TODO Backup current database
         System.exit(0);
@@ -72,11 +79,70 @@ public class MainWindow implements Initializable {
 
         WineDeleteAction wineDeleteAction = this::deleteWineAndRefreshList;
         WineModifyAction wineModifyAction = this::updateWineAndRefreshList;
-        WineSelectAction wineSelectAction = this::loadWineIntoTableView;
+        WineSelectAction wineSelectAction = this::loadEntriesIntoTableView;
+
+        addButtonIcons();
+        addButtonActions();
 
         lvWines.setCellFactory(lvWines -> new WineCellView(wineDeleteAction, wineModifyAction, wineSelectAction));
 
         tblViewColRealizedAt.setCellFactory(column -> createEntryDateTableCellFactory());
+    }
+
+    private void addButtonActions() {
+        btnEditEntry.setOnAction(actionEvent -> {
+
+            /*  TODO Eventuell mit AddEntryDialog zusammenlegen? Generalisieren der Views und Aufrufe?
+                TODO Eventuell Mehrfachauswahl möglich? */
+            var selectedEntries = tblViewMeasures.getSelectionModel().getSelectedItems();
+            var selectedWines = lvWines.getSelectionModel().getSelectedItems();
+
+            if(CollectionUtils.isNotEmpty(selectedEntries)) {
+                try {
+                    FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/ui/components/dialogs/EditEntryDialog.fxml"));
+                    Parent parent = fxmlLoader.load();
+                    EditEntryDialog editEntryDialog = fxmlLoader.getController();
+                    editEntryDialog.setEntry(selectedEntries.get(0));
+                    editEntryDialog.setParent(this);
+                    editEntryDialog.setAddEntryDialogSuccessAction((entry) ->
+                            loadEntriesIntoTableView(selectedWines.get(0), entry));
+
+                    editEntryDialog.initializeFields();
+
+                    Scene scene = new Scene(parent);
+                    Stage stage = new Stage();
+                    stage.setTitle("Eintrag bearbeiten");
+                    stage.initModality(Modality.APPLICATION_MODAL);
+                    stage.setScene(scene);
+                    stage.showAndWait();
+                } catch (IOException e) {
+                    // TODO Logging
+                    e.printStackTrace();
+                }
+            } else {
+                Alerts.showErrorDialog("Kein Eintrag ausgewählt!",
+                        "Bitte wähle einen Eintrag aus den du bearbeiten möchtest!");
+            }
+        });
+
+        btnDeleteEntry.setOnAction(actionEvent -> {
+            var selectedEntries = tblViewMeasures.getSelectionModel().getSelectedItems();
+            var selectedWines = lvWines.getSelectionModel().getSelectedItems();
+
+            if(CollectionUtils.isNotEmpty(selectedEntries)) {
+                Entry entryToDelete = selectedEntries.get(0);
+                entryService.delete(entryToDelete.getId());
+                loadEntriesIntoTableView(selectedWines.get(0), null);
+            } else {
+                Alerts.showErrorDialog("Kein Eintrag ausgewählt!",
+                        "Bitte wähle einen Eintrag aus den du bearbeiten möchtest!");
+            }
+        });
+    }
+
+    private void addButtonIcons() {
+        ButtonUtils.addIconToButton(btnEditEntry, "/assets/edit.png");
+        ButtonUtils.addIconToButton(btnDeleteEntry, "/assets/delete.png");
     }
 
     @FXML
@@ -85,13 +151,13 @@ public class MainWindow implements Initializable {
         // TODO Eventuell Mehrfachauswahl möglich?
         var selectedWines = lvWines.getSelectionModel().getSelectedItems();
 
-        if(selectedWines != null && selectedWines.size() == 1) {
+        if(CollectionUtils.isNotEmpty(selectedWines)) {
 
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/ui/components/dialogs/AddEntryDialog.fxml"));
             Parent parent = fxmlLoader.load();
-            AddEntryDialog addEntryDialog = fxmlLoader.<AddEntryDialog>getController();
+            AddEntryDialog addEntryDialog = fxmlLoader.getController();
             addEntryDialog.setParent(this);
-            addEntryDialog.setAddEntryDialogSuccessAction(() -> loadWineIntoTableView(selectedWines.get(0)));
+            addEntryDialog.setAddEntryDialogSuccessAction((entry) -> loadEntriesIntoTableView(selectedWines.get(0), entry));
 
             addEntryDialog.setWine(selectedWines.get(0));
             addEntryDialog.setYear(setting.getCurrentYear());
@@ -111,7 +177,7 @@ public class MainWindow implements Initializable {
     }
 
     private TableCell<Entry, Date> createEntryDateTableCellFactory() {
-        TableCell<Entry, Date> cell = new TableCell<>() {
+        return new TableCell<>() {
             private SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
 
             @Override
@@ -125,8 +191,6 @@ public class MainWindow implements Initializable {
                 }
             }
         };
-
-        return cell;
     }
 
     private void updateWineAndRefreshList(Wine wine, String newName) {
@@ -170,11 +234,12 @@ public class MainWindow implements Initializable {
         }
     }
 
-    private void loadWineIntoTableView(Wine wine) {
+    private void loadEntriesIntoTableView(Wine wine, Entry entry) {
         var allEntries = entryService.findAllByWine(wine);
         observableEntryList.clear();
         observableEntryList.addAll(allEntries);
         tblViewMeasures.setItems(observableEntryList);
+        tblViewMeasures.getSelectionModel().select(entry);
     }
 
     private void loadWinesIntoObservableWineList() {

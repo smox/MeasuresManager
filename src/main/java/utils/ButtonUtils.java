@@ -11,12 +11,12 @@ import java.util.Optional;
 public class ButtonUtils {
 
 
-    public static void addIconToButton(Button btnDelete, String pathToIcon) {
+    public static void addIconToButton(Button button, String pathToIcon) {
         Image imageDelete = new Image(Objects.requireNonNull(ButtonUtils.class.getResourceAsStream(pathToIcon)));
         ImageView imageView = new ImageView(imageDelete);
         imageView.setFitHeight(16);
         imageView.setFitWidth(16);
-        btnDelete.setGraphic(imageView);
+        button.setGraphic(imageView);
     }
 
     public static boolean isButton(Optional<ButtonType> button, ButtonType buttonToCompare) {

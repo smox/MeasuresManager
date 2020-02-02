@@ -61,7 +61,7 @@ public class WineCellView extends ListCell<Wine> {
 
             txtDesignation.setText(wine.getName());
 
-            addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEvent -> selectAction.selectWine(wine));
+            addEventFilter(MouseEvent.MOUSE_CLICKED, mouseEvent -> selectAction.selectWine(wine, null));
 
             btnEdit.setOnAction(actionEvent -> {
                 if(!txtDesignation.isDisabled()) {
