@@ -30,9 +30,9 @@
       </MenuBar>
    </top>
    <center>
-      <SplitPane dividerPositions="0.3" prefHeight="160.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+      <SplitPane fx:id="splitPane" dividerPositions="0.3" prefHeight="160.0" prefWidth="200.0" BorderPane.alignment="CENTER">
          <items>
-            <BorderPane prefHeight="200.0" prefWidth="200.0">
+            <BorderPane minWidth="250" prefHeight="200.0" prefWidth="200.0" SplitPane.resizableWithParent="false">
                <top>
                   <StackPane prefHeight="32.0" prefWidth="168.0" BorderPane.alignment="CENTER">
                      <children>
@@ -48,7 +48,7 @@
                     </ListView>
                 </center>
             </BorderPane>
-            <BorderPane SplitPane.resizableWithParent="false">
+            <BorderPane>
                <center>
                   <TableView fx:id="tblViewMeasures" BorderPane.alignment="CENTER">
                     <columns>
@@ -81,7 +81,7 @@
                <bottom>
                   <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
                     <buttons>
-                      <Button defaultButton="true" mnemonicParsing="false" onAction="#onOpenAddEntryDialog" text="Neue Maßnahme hinzufügen" />
+                      <Button defaultButton="true" mnemonicParsing="false" onAction="#onOpenAddEntryDialog" text="Neuen Eintrag hinzufügen" />
                     </buttons>
                      <padding>
                         <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />

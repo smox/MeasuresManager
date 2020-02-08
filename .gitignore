@@ -1,2 +1,5 @@
 /.idea/
 /target/
+/documentation/
+test.mv.db
+test.trace.db
