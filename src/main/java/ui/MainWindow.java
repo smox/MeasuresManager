@@ -81,6 +81,7 @@ public class MainWindow implements Initializable {
         WineModifyAction wineModifyAction = this::updateWineAndRefreshList;
         WineSelectAction wineSelectAction = this::loadEntriesIntoTableView;
 
+        addTableViewRowListener();
         addButtonIcons();
         addButtonActions();
 
@@ -89,41 +90,22 @@ public class MainWindow implements Initializable {
         tblViewColRealizedAt.setCellFactory(column -> createEntryDateTableCellFactory());
     }
 
-    private void addButtonActions() {
-        btnEditEntry.setOnAction(actionEvent -> {
-
-            /*  TODO Eventuell mit AddEntryDialog zusammenlegen? Generalisieren der Views und Aufrufe?
-                TODO Eventuell Mehrfachauswahl möglich? */
-            var selectedEntries = tblViewMeasures.getSelectionModel().getSelectedItems();
-            var selectedWines = lvWines.getSelectionModel().getSelectedItems();
-
-            if(CollectionUtils.isNotEmpty(selectedEntries)) {
-                try {
-                    FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/ui/components/dialogs/EditEntryDialog.fxml"));
-                    Parent parent = fxmlLoader.load();
-                    EditEntryDialog editEntryDialog = fxmlLoader.getController();
-                    editEntryDialog.setEntry(selectedEntries.get(0));
-                    editEntryDialog.setParent(this);
-                    editEntryDialog.setAddEntryDialogSuccessAction((entry) ->
-                            loadEntriesIntoTableView(selectedWines.get(0), entry));
-
-                    editEntryDialog.initializeFields();
-
-                    Scene scene = new Scene(parent);
-                    Stage stage = new Stage();
-                    stage.setTitle("Eintrag bearbeiten");
-                    stage.initModality(Modality.APPLICATION_MODAL);
-                    stage.setScene(scene);
-                    stage.showAndWait();
-                } catch (IOException e) {
-                    // TODO Logging
-                    e.printStackTrace();
+    private void addTableViewRowListener() {
+        tblViewMeasures.setRowFactory( tv -> {
+            TableRow<Entry> row = new TableRow<>();
+            row.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2 && (! row.isEmpty()) ) {
+                    Entry entry = row.getItem();
+                    openEditEntryView(entry);
                 }
-            } else {
-                Alerts.showErrorDialog("Kein Eintrag ausgewählt!",
-                        "Bitte wähle einen Eintrag aus den du bearbeiten möchtest!");
-            }
+            });
+            return row ;
         });
+    }
+
+
+    private void addButtonActions() {
+        btnEditEntry.setOnAction(actionEvent -> openEditEntryView(null));
 
         btnDeleteEntry.setOnAction(actionEvent -> {
             var selectedEntries = tblViewMeasures.getSelectionModel().getSelectedItems();
@@ -138,6 +120,49 @@ public class MainWindow implements Initializable {
                         "Bitte wähle einen Eintrag aus den du bearbeiten möchtest!");
             }
         });
+    }
+
+    private void openEditEntryView(Entry entry) {
+
+    /*  TODO Eventuell mit AddEntryDialog zusammenlegen? Generalisieren der Views und Aufrufe?
+        TODO Eventuell Mehrfachauswahl möglich? */
+
+        ObservableList<Entry> selectedEntries = FXCollections.observableArrayList();
+
+        if(entry == null) {
+            selectedEntries = tblViewMeasures.getSelectionModel().getSelectedItems();
+        } else {
+            selectedEntries.add(entry);
+        }
+
+        var selectedWines = lvWines.getSelectionModel().getSelectedItems();
+
+        if(CollectionUtils.isNotEmpty(selectedEntries)) {
+            try {
+                FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/ui/components/dialogs/EditEntryDialog.fxml"));
+                Parent parent = fxmlLoader.load();
+                EditEntryDialog editEntryDialog = fxmlLoader.getController();
+                editEntryDialog.setEntry(selectedEntries.get(0));
+                editEntryDialog.setParent(this);
+                editEntryDialog.setAddEntryDialogSuccessAction((e) ->
+                        loadEntriesIntoTableView(selectedWines.get(0), e));
+
+                editEntryDialog.initializeFields();
+
+                Scene scene = new Scene(parent);
+                Stage stage = new Stage();
+                stage.setTitle("Eintrag bearbeiten");
+                stage.initModality(Modality.APPLICATION_MODAL);
+                stage.setScene(scene);
+                stage.showAndWait();
+            } catch (IOException e) {
+                // TODO Logging
+                e.printStackTrace();
+            }
+        } else {
+            Alerts.showErrorDialog("Kein Eintrag ausgewählt!",
+                    "Bitte wähle einen Eintrag aus den du bearbeiten möchtest!");
+        }
     }
 
     private void addButtonIcons() {

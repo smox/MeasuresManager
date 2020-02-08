@@ -17,7 +17,7 @@ public class MeasuresManager extends Application  {
     public static SettingService settingService = new SettingService();
     public static Setting setting;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         Locale.setDefault(Locale.GERMANY);
         createSeedData();
         setting = settingService.findCurrent();
@@ -28,13 +28,15 @@ public class MeasuresManager extends Application  {
     public void start(Stage stage) throws IOException {
         Parent root = FXMLLoader.load(getClass().getResource("ui/MainWindow.fxml"));
         Scene scene = new Scene(root);
-        stage.setTitle("Maßnahmenverwaltung - Winzerhof Schwanzelberger - "+setting.getCurrentYear());
+        stage.setTitle("Maßnahmenverwaltung - "+setting.getCompanyName()+" ("+setting.getCompanyNumber()+")"+" - "+setting.getCurrentYear());
         stage.setScene(scene);
         stage.getScene().getWindow().addEventFilter(WindowEvent.WINDOW_CLOSE_REQUEST, this::closeWindowEvent);
+        stage.setMinWidth(1024);
+        stage.setMinHeight(768);
         stage.show();
     }
 
-    private static void createSeedData() {
+    private static void createSeedData() throws IOException {
         SeedDataService.createSeedData();
     }
 
