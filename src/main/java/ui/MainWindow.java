@@ -26,6 +26,7 @@ import ui.components.listview.actions.WineModifyAction;
 import ui.components.listview.actions.WineSelectAction;
 import utils.ButtonUtils;
 import utils.CollectionUtils;
+import utils.StringUtils;
 
 import java.io.IOException;
 import java.net.URL;
@@ -218,19 +219,29 @@ public class MainWindow implements Initializable {
         };
     }
 
-    private void updateWineAndRefreshList(Wine wine, String newName) {
-        newName = newName.trim();
-        var existingWine = wineService.findByNameAndYear(newName, setting.getCurrentYear());
-        if(existingWine == null) {
-            wine.setName(newName);
-            wineService.update(wine);
-        } else if(!existingWine.getId().equals(wine.getId())) {
-            Alerts.showErrorDialog(
-                    "Wein bereits vorhanden",
-                    "Der Wein mit dem Namen "+existingWine.getName()
-                            +" gibt es in dem Jahr "+existingWine.getYear()+" bereits!");
+    private boolean updateWineAndRefreshList(Wine wine, String newName) {
+        if(StringUtils.isNotBlank(newName)) {
+            newName = newName.trim();
+            var existingWine = wineService.findByNameAndYear(newName, setting.getCurrentYear());
+            if(existingWine == null) {
+                wine.setName(newName);
+                wineService.update(wine);
+            } else if(!existingWine.getId().equals(wine.getId())) {
+                Alerts.showErrorDialog(
+                        "Wein bereits vorhanden",
+                        "Der Wein mit dem Namen "+existingWine.getName()
+                                +" gibt es in dem Jahr "+existingWine.getYear()+" bereits!");
+                return false;
+            }
+
+            loadWinesIntoObservableWineList();
+            return true;
+        } else {
+            Alerts.showErrorDialog("Name des Weins leer",
+                    "Der Name des Weins ist leer! Bitte gib einen Namen ein!");
+            return false;
         }
-        loadWinesIntoObservableWineList();
+
     }
 
     private void deleteWineAndRefreshList(Wine wine) {
