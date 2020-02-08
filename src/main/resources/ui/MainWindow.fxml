@@ -88,6 +88,20 @@
                      </padding>
                   </ButtonBar>
                </bottom>
+               <right>
+                  <VBox prefHeight="626.0" prefWidth="38.0" BorderPane.alignment="CENTER">
+                     <children>
+                        <Button fx:id="btnEditEntry" mnemonicParsing="false">
+                           <VBox.margin>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </VBox.margin></Button>
+                        <Button fx:id="btnDeleteEntry" mnemonicParsing="false">
+                           <VBox.margin>
+                              <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                           </VBox.margin></Button>
+                     </children>
+                  </VBox>
+               </right>
             </BorderPane>
          </items>
       </SplitPane>

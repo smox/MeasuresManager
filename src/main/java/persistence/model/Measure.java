@@ -3,6 +3,7 @@ package persistence.model;
 import javax.persistence.*;
 import java.sql.Date;
 import java.util.List;
+import java.util.Objects;
 
 
 /**
@@ -24,6 +25,19 @@ public class Measure {
     @Override
     public String toString() {
         return name;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Measure measure = (Measure) o;
+        return Objects.equals(id, measure.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 
     /* Boilerplate Code */

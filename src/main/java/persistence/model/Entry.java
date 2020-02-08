@@ -4,6 +4,7 @@ import javax.persistence.*;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 public class Entry {
@@ -33,6 +34,18 @@ public class Entry {
     @ManyToOne
     private Wine wine;
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Entry entry = (Entry) o;
+        return Objects.equals(id, entry.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 
     /* Boilerplate Code */
     public Long getId() {
