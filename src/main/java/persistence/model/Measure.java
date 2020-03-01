@@ -1,9 +1,13 @@
 package persistence.model;
 
+import org.hibernate.exception.spi.TemplatedViolatedConstraintNameExtracter;
+
 import javax.persistence.*;
 import java.sql.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 
 /**
@@ -12,15 +16,34 @@ import java.util.Objects;
 @Entity
 public class Measure {
 
+    private static final String PARENT_ID = "PARENT_ID";
+    private static final String MEASURE_TYPE = "MEASURE_TYPE";
+    private static final String TEXT = "TEXT";
+
+    public enum MeasureType { NO_SPECIAL, POUR }
+
     @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @Column(nullable = false)
     private String name;
 
-    @ManyToMany(mappedBy = "measures")
+    @OneToMany(mappedBy = "measure")
     private List<Entry> entries;
+
+    @ManyToOne
+    @JoinColumn(name = PARENT_ID)
+    private Measure parent;
+
+    @Column(name = TEXT)
+    private String text;
+
+    @Column(name = MEASURE_TYPE)
+    private MeasureType measureType;
+
+    @OneToMany(mappedBy = "parent")
+    private Set<Measure> children = new HashSet<>(0);
 
     @Override
     public String toString() {
@@ -64,5 +87,33 @@ public class Measure {
 
     public void setEntries(List<Entry> entries) {
         this.entries = entries;
+    }
+
+    public Measure getParent() {
+        return parent;
+    }
+
+    public void setParent(Measure parent) {
+        this.parent = parent;
+    }
+
+    public Set<Measure> getChildren() {
+        return children;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public void setText(String text) {
+        this.text = text;
+    }
+
+    public MeasureType getMeasureType() {
+        return measureType;
+    }
+
+    public void setMeasureType(MeasureType measureType) {
+        this.measureType = measureType;
     }
 }

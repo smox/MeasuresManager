@@ -20,6 +20,7 @@ import ui.MainWindow;
 import ui.components.dialogs.actions.IAddOrEditEntryDialogSuccessAction;
 import ui.components.spinner.CustomIntegerSpinnerValueFactory;
 import utils.ButtonUtils;
+import utils.CollectionUtils;
 import utils.StringUtils;
 
 import java.net.URL;
@@ -193,7 +194,10 @@ public class AddEntryDialog extends Dialog<Entry> implements Initializable {
             entry.setContainer(container);
             entry.setWine(wine);
             entry.setAmount(amount);
-            entry.setMeasures(checkedMeasures);
+
+            if(CollectionUtils.isNotEmpty(checkedMeasures)) {
+                entry.setMeasure(checkedMeasures.get(0)); // FIXME replace this after UI change to TreeList
+            }
 
             MainWindow.entryService.persist(entry);
 

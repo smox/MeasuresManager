@@ -2,13 +2,16 @@ package persistence.model;
 
 import javax.persistence.*;
 import java.sql.Date;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 public class Entry {
 
+    public static final String MEASURE = "MEASURE";
+
+    
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
     private Long id;
@@ -24,12 +27,9 @@ public class Entry {
     @Column(nullable = false)
     private String container;
 
-    @ManyToMany
-    @JoinTable(
-            name = "entry_to_measure",
-            joinColumns = @JoinColumn(name = "entry_id"),
-            inverseJoinColumns = @JoinColumn(name = "measure_id"))
-    private List<Measure> measures;
+    @ManyToOne
+    @Column(name = MEASURE)
+    private Measure measure;
 
     @ManyToOne
     private Wine wine;
@@ -84,12 +84,12 @@ public class Entry {
         this.container = container;
     }
 
-    public List<Measure> getMeasures() {
-        return measures;
+    public Measure getMeasure() {
+        return measure;
     }
 
-    public void setMeasures(List<Measure> measures) {
-        this.measures = measures;
+    public void setMeasure(Measure measure) {
+        this.measure = measure;
     }
 
     public Wine getWine() {
@@ -102,6 +102,5 @@ public class Entry {
 
     public Entry() {
         this.createdAt = new Date(System.currentTimeMillis());
-        this.measures = new ArrayList<>();
     }
 }

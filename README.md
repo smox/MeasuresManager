@@ -7,6 +7,7 @@ Tech Stack: Java13, JavaFX13, ControlsFX 11, Hibernate, Maven,  H2 (file based)
 
 System requirements:
 Operating System: Windows, Linux
+    public boolean equals(Object o) {
 Minimum resolution: 1024 x 768
 
 

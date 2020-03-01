@@ -16,6 +16,7 @@ import ui.MainWindow;
 import ui.components.dialogs.actions.IAddOrEditEntryDialogSuccessAction;
 import ui.components.spinner.CustomIntegerSpinnerValueFactory;
 import utils.ButtonUtils;
+import utils.CollectionUtils;
 import utils.StringUtils;
 
 import java.net.URL;
@@ -75,7 +76,7 @@ public class EditEntryDialog extends Dialog<Entry> implements Initializable {
 
         for(int i = 0; i < cbMeasures.getItems().size(); i++) {
             Measure measure = cbMeasures.getItems().get(i);
-            if(entry.getMeasures().contains(measure)) {
+            if(entry.getMeasure().equals(measure)) {
                 cbMeasures.getCheckModel().check(i);
             }
         }
@@ -198,7 +199,10 @@ public class EditEntryDialog extends Dialog<Entry> implements Initializable {
             entry.setRealizedAt(Date.valueOf(realizedAt));
             entry.setContainer(container);
             entry.setAmount(amount);
-            entry.setMeasures(checkedMeasures);
+
+            if(CollectionUtils.isNotEmpty(checkedMeasures)) {
+                entry.setMeasure(checkedMeasures.get(0)); // FIXME replace this after UI change to TreeList
+            }
 
             MainWindow.entryService.update(entry);
 
