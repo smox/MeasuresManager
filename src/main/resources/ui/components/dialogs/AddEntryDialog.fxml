@@ -3,7 +3,6 @@
 <?import javafx.geometry.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import org.controlsfx.control.*?>
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="550.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.components.dialogs.AddEntryDialog">
    <center>
@@ -21,9 +20,6 @@
             <Spinner fx:id="spinAmount" editable="true" GridPane.columnIndex="1" GridPane.rowIndex="2" />
             <Label text="Maßnahmen" GridPane.rowIndex="3" />
             <BorderPane GridPane.columnIndex="1" GridPane.rowIndex="3">
-               <center>
-                  <CheckListView fx:id="cbMeasures" />
-               </center>
                <right>
                   <VBox prefHeight="376.0" prefWidth="33.0" BorderPane.alignment="CENTER">
                      <children>
@@ -43,6 +39,9 @@
                      </BorderPane.margin>
                   </VBox>
                </right>
+               <center>
+                  <TreeView fx:id="tvMeasures" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+               </center>
             </BorderPane>
          </children>
          <rowConstraints>

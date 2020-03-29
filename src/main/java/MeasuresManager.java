@@ -4,8 +4,9 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import org.flywaydb.core.Flyway;
 import persistence.model.Setting;
-import persistence.service.SeedDataService;
+import persistence.service.MigrationService;
 import persistence.service.SettingService;
 
 import java.io.IOException;
@@ -14,12 +15,12 @@ import java.util.Locale;
 
 public class MeasuresManager extends Application  {
 
+    public static MigrationService migrationService = new MigrationService();
     public static SettingService settingService = new SettingService();
     public static Setting setting;
 
     public static void main(String[] args) throws Exception {
         Locale.setDefault(Locale.GERMANY);
-        createSeedData();
         setting = settingService.findCurrent();
         launch(args);
     }
@@ -34,10 +35,6 @@ public class MeasuresManager extends Application  {
         stage.setMinWidth(1024);
         stage.setMinHeight(768);
         stage.show();
-    }
-
-    private static void createSeedData() throws IOException {
-        SeedDataService.createSeedData();
     }
 
     private void closeWindowEvent(WindowEvent event) {

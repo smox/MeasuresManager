@@ -9,7 +9,7 @@ import java.util.Set;
 @Entity
 public class Entry {
 
-    public static final String MEASURE = "MEASURE";
+    public static final String MEASURE_ID = "MEASURE_ID";
 
     
     @Id
@@ -27,8 +27,11 @@ public class Entry {
     @Column(nullable = false)
     private String container;
 
+    @Column(name = "ADDITIONAL_INFORMATION")
+    private String additionalInformation;
+
     @ManyToOne
-    @Column(name = MEASURE)
+    @JoinColumn(name = MEASURE_ID)
     private Measure measure;
 
     @ManyToOne
@@ -102,5 +105,13 @@ public class Entry {
 
     public Entry() {
         this.createdAt = new Date(System.currentTimeMillis());
+    }
+
+    public String getAdditionalInformation() {
+        return additionalInformation;
+    }
+
+    public void setAdditionalInformation(String additionalInformation) {
+        this.additionalInformation = additionalInformation;
     }
 }

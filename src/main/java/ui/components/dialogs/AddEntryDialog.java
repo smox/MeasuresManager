@@ -1,6 +1,5 @@
 package ui.components.dialogs;
 
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -11,7 +10,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import org.controlsfx.control.CheckListView;
 import persistence.model.ContainerAmountMap;
 import persistence.model.Entry;
 import persistence.model.Measure;
@@ -30,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 public class AddEntryDialog extends Dialog<Entry> implements Initializable {
 
@@ -51,7 +50,7 @@ public class AddEntryDialog extends Dialog<Entry> implements Initializable {
     private Spinner<Integer> spinAmount;
 
     @FXML
-    private CheckListView<Measure> cbMeasures;
+    private TreeView<Measure> tvMeasures;
 
     @FXML
     private Button btnAddMeasure;
@@ -59,20 +58,34 @@ public class AddEntryDialog extends Dialog<Entry> implements Initializable {
     @FXML
     private Button btnRemoveMeasure;
 
-    final ObservableList<Measure> observableMeasureList = FXCollections.observableArrayList();
-
-
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
-        loadMeasures();
         addButtonIcons();
         addButtonActions();
         addContainerListener();
 
         dpRealizedAt.setValue(LocalDate.now());
         spinAmount.setValueFactory(new CustomIntegerSpinnerValueFactory(0, Integer.MAX_VALUE, 0));
-        cbMeasures.getItems().addAll(observableMeasureList);
+
+        tvMeasures.setRoot(createRootMeasureItemByMeasures());
+        tvMeasures.setShowRoot(false);
+    }
+
+    private TreeItem<Measure> createRootMeasureItemByMeasures() {
+        List<Measure> allMeasures = MainWindow.measureService.findAll();
+        TreeItem<Measure> rootItem = new TreeItem<>();
+
+        for(Measure measure : allMeasures) {
+            if(measure.getParent() == null) { // is root Item
+                TreeItem<Measure> treeItem = new TreeItem<>(measure);
+                List<TreeItem<Measure>> childItems = measure.getChildren().stream().map(TreeItem::new).collect(Collectors.toList());
+                treeItem.getChildren().addAll(childItems);
+                rootItem.getChildren().add(treeItem);
+            }
+        }
+
+        return rootItem;
     }
 
     private void addContainerListener() {
@@ -112,15 +125,19 @@ public class AddEntryDialog extends Dialog<Entry> implements Initializable {
         });
 
         btnRemoveMeasure.setOnAction(actionEvent -> {
-            ObservableList<Measure> checkedItems = cbMeasures.getCheckModel().getCheckedItems();
-            if(checkedItems != null && checkedItems.size() > 0) {
+            //ObservableList<Measure> checkedItems = cbMeasures.getCheckModel().getCheckedItems();
+            ObservableList<TreeItem<Measure>> selectedItems = tvMeasures.getSelectionModel().getSelectedItems();
 
-                checkedItems.stream().map(measure -> {
+            if(CollectionUtils.isNotEmpty(selectedItems)) {
+
+                // TODO Remove Items
+                /*
+                selectedItems.stream().map(measure -> {
                     cbMeasures.getCheckModel().clearCheck(measure);
                     return measure.getId();
-                }).forEach(MainWindow.measureService::delete);
+                }).forEach(MainWindow.measureService::delete);*/
 
-                refreshMeasures();
+                //refreshMeasures();
 
             } else {
                 Alerts.showErrorDialog(
@@ -131,13 +148,14 @@ public class AddEntryDialog extends Dialog<Entry> implements Initializable {
         });
     }
 
+    /* TODO refreshItems
     private void refreshMeasures() {
         observableMeasureList.clear();
         List<Measure> allMeasures = MainWindow.measureService.findAll();
         observableMeasureList.addAll(allMeasures != null ? allMeasures : new ArrayList<>());
         cbMeasures.getItems().clear();
         cbMeasures.getItems().addAll(observableMeasureList);
-    }
+    } */
 
     private void addMeasure(Optional<String> result) {
 
@@ -148,7 +166,7 @@ public class AddEntryDialog extends Dialog<Entry> implements Initializable {
         var measureByName = MainWindow.measureService.findByName(nameOfMeasure);
         if(measureByName == null) {
             MainWindow.measureService.persist(measure);
-            refreshMeasures();
+            //refreshMeasures(); TODO ADD Items
         } else {
             Alerts.showErrorDialog(
                     "Fehler beim Hinzufügen der Maßnahme",
@@ -163,10 +181,6 @@ public class AddEntryDialog extends Dialog<Entry> implements Initializable {
         ButtonUtils.addIconToButton(btnRemoveMeasure, "/assets/delete.png");
     }
 
-    private void loadMeasures() {
-        observableMeasureList.addAll(MainWindow.measureService.findAll());
-    }
-
     public void setParent(MainWindow mainWindow) {
         this.mainWindow = mainWindow;
     }
@@ -178,7 +192,8 @@ public class AddEntryDialog extends Dialog<Entry> implements Initializable {
             LocalDate realizedAt = dpRealizedAt.getValue();
             String container = tfContainer.getText();
             Integer amount = spinAmount.getValue();
-            ObservableList<Measure> checkedMeasures = cbMeasures.getCheckModel().getCheckedItems();
+            //ObservableList<Measure> checkedMeasures = cbMeasures.getCheckModel().getCheckedItems();
+            ObservableList<TreeItem<Measure>> selectedMeasures = tvMeasures.getSelectionModel().getSelectedItems();
 
             //Save ContainerAmountMap
             Integer amountByContainerAmountMap = getAmountByContainer(container);
@@ -195,8 +210,8 @@ public class AddEntryDialog extends Dialog<Entry> implements Initializable {
             entry.setWine(wine);
             entry.setAmount(amount);
 
-            if(CollectionUtils.isNotEmpty(checkedMeasures)) {
-                entry.setMeasure(checkedMeasures.get(0)); // FIXME replace this after UI change to TreeList
+            if(CollectionUtils.isNotEmpty(selectedMeasures)) {
+                entry.setMeasure(selectedMeasures.get(0).getValue()); // FIXME replace this after UI change to TreeList
             }
 
             MainWindow.entryService.persist(entry);
