@@ -13,8 +13,9 @@ import java.util.*;
 @Entity
 public class Measure {
 
-    private static final String PARENT_ID = "PARENT_ID";
-    private static final String MEASURE_TYPE = "MEASURE_TYPE";
+    public static final String NAME = "NAME";
+    public static final String PARENT_ID = "PARENT_ID";
+    public static final String MEASURE_TYPE = "MEASURE_TYPE";
 
     /**
      * Describes the type of a measure.
@@ -28,7 +29,7 @@ public class Measure {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(name = NAME, nullable = false)
     private String name;
 
     @OneToMany(mappedBy = "measure")

@@ -16,9 +16,8 @@ import persistence.model.Entry;
 import persistence.model.Setting;
 import persistence.model.Wine;
 import persistence.service.*;
-import ui.components.dialogs.AddEntryDialog;
+import ui.components.dialogs.EntryDialog;
 import ui.components.dialogs.Alerts;
-import ui.components.dialogs.EditEntryDialog;
 import ui.components.dialogs.GenericAddDialog;
 import ui.components.listview.WineCellView;
 import ui.components.listview.actions.WineDeleteAction;
@@ -87,7 +86,6 @@ public class MainWindow implements Initializable {
         addButtonActions();
 
         lvWines.setCellFactory(lvWines -> new WineCellView(wineDeleteAction, wineModifyAction, wineSelectAction));
-
         tblViewColRealizedAt.setCellFactory(column -> createEntryDateTableCellFactory());
     }
 
@@ -140,12 +138,13 @@ public class MainWindow implements Initializable {
 
         if(CollectionUtils.isNotEmpty(selectedEntries)) {
             try {
-                FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/ui/components/dialogs/EditEntryDialog.fxml"));
+                FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/ui/components/dialogs/EntryDialog.fxml"));
                 Parent parent = fxmlLoader.load();
-                EditEntryDialog editEntryDialog = fxmlLoader.getController();
+                EntryDialog editEntryDialog = fxmlLoader.getController();
+
                 editEntryDialog.setEntry(selectedEntries.get(0));
                 editEntryDialog.setParent(this);
-                editEntryDialog.setAddEntryDialogSuccessAction((e) ->
+                editEntryDialog.setEntryDialogSuccessAction((e) ->
                         loadEntriesIntoTableView(selectedWines.get(0), e));
 
                 editEntryDialog.initializeFields();
@@ -179,14 +178,21 @@ public class MainWindow implements Initializable {
 
         if(CollectionUtils.isNotEmpty(selectedWines)) {
 
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/ui/components/dialogs/AddEntryDialog.fxml"));
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/ui/components/dialogs/EntryDialog.fxml"));
             Parent parent = fxmlLoader.load();
-            AddEntryDialog addEntryDialog = fxmlLoader.getController();
-            addEntryDialog.setParent(this);
-            addEntryDialog.setAddEntryDialogSuccessAction((entry) -> loadEntriesIntoTableView(selectedWines.get(0), entry));
+            EntryDialog entryDialog = fxmlLoader.getController();
+            entryDialog.setParent(this);
+            entryDialog.setEntryDialogSuccessAction((entry) -> loadEntriesIntoTableView(selectedWines.get(0), entry));
 
-            addEntryDialog.setWine(selectedWines.get(0));
-            addEntryDialog.setYear(setting.getCurrentYear());
+            ObservableList<Entry> selectedEntries = tblViewMeasures.getSelectionModel().getSelectedItems();
+            if(CollectionUtils.isNotEmpty(selectedEntries)) {
+                Entry entry = selectedEntries.get(0);
+                entryDialog.setContainer(entry.getContainer());
+                entryDialog.setSpinAmount(entry.getAmount());
+            }
+
+            entryDialog.setWine(selectedWines.get(0));
+
 
             Scene scene = new Scene(parent);
             Stage stage = new Stage();

@@ -1,6 +1,5 @@
 package ui.components.dialogs;
 
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -15,7 +14,7 @@ import persistence.model.Entry;
 import persistence.model.Measure;
 import persistence.model.Wine;
 import ui.MainWindow;
-import ui.components.dialogs.actions.IAddOrEditEntryDialogSuccessAction;
+import ui.components.dialogs.actions.IEntryDialogSuccessAction;
 import ui.components.spinner.CustomIntegerSpinnerValueFactory;
 import utils.ButtonUtils;
 import utils.CollectionUtils;
@@ -24,21 +23,20 @@ import utils.StringUtils;
 import java.net.URL;
 import java.sql.Date;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
 
-public class AddEntryDialog extends Dialog<Entry> implements Initializable {
+public class EntryDialog extends Dialog<Entry> implements Initializable {
+
+    private Entry entry;
 
     MainWindow mainWindow;
 
     private Wine wine;
 
-    private String year;
-
-    private IAddOrEditEntryDialogSuccessAction addEntryDialogSuccessAction;
+    private IEntryDialogSuccessAction entryDialogSuccessAction;
 
     @FXML
     private DatePicker dpRealizedAt;
@@ -70,6 +68,17 @@ public class AddEntryDialog extends Dialog<Entry> implements Initializable {
 
         tvMeasures.setRoot(createRootMeasureItemByMeasures());
         tvMeasures.setShowRoot(false);
+
+
+    }
+
+    public void setSpinAmount(int amount) {
+        spinAmount.getEditor().setText(String.valueOf(amount));
+        spinAmount.commitValue();
+    }
+
+    public void setContainer(String container) {
+        tfContainer.setText(container);
     }
 
     private TreeItem<Measure> createRootMeasureItemByMeasures() {
@@ -86,6 +95,73 @@ public class AddEntryDialog extends Dialog<Entry> implements Initializable {
         }
 
         return rootItem;
+    }
+
+    public void initializeFields() {
+
+        if(entry != null) {
+
+            dpRealizedAt.setValue(entry.getRealizedAt() != null ? entry.getRealizedAt().toLocalDate() : LocalDate.now());
+            tfContainer.setText(entry.getContainer());
+            spinAmount.getEditor().setText(entry.getAmount() != null ? String.valueOf(entry.getAmount()) : "0");
+            spinAmount.commitValue();
+
+            // Select Item by entry
+            MultipleSelectionModel<TreeItem<Measure>> selectionModel = tvMeasures.getSelectionModel();
+            int row = 0;
+            TreeItem<Measure> rootNode = tvMeasures.getRoot();
+            row = getRowByTreeItem(rootNode, entry.getMeasure(), row);
+            selectionModel.select(row);
+
+        } else {
+            // TODO logger.warm
+            System.err.println("Cannot initialize fields when entry is not given or null");
+        }
+    }
+
+    /**
+     * Recursiv search function for TreeItems.
+     * It iterates over every item recursively, open all Nodes with childrens, check every child item and
+     * closes the nodes if the searched item is not within the the child items
+     * @param treeNode the rootNode where the search should start
+     * @param measureToSearch the measure to find
+     * @param index the starting index (zero in the most cases)
+     * @return the index of the searched treeItem.
+     */
+    private int getRowByTreeItem(TreeItem<Measure> treeNode, Measure measureToSearch, int index) {
+
+        if(index != 0) {
+            index++;
+        }
+
+        for(TreeItem<Measure> node : treeNode.getChildren()) {
+            if(node.getChildren().size() > 0) { // has children?
+
+                if(node.getValue().equals(measureToSearch)) {
+                    return index;
+                }
+
+                node.setExpanded(true);
+                // call children
+                int indexOld = index;
+                index = getRowByTreeItem(node, measureToSearch, indexOld);
+
+                if(indexOld+1 == index) {
+                    return index;
+                } else {
+                    node.setExpanded(false);
+                    index--;
+                }
+            } else {
+                Measure measure = node.getValue();
+                if(measure.equals(measureToSearch)) {
+                    return index; // measure found -> break up
+                } else {
+                    index++; // continue search
+                }
+            }
+        }
+        return index;
     }
 
     private void addContainerListener() {
@@ -125,20 +201,29 @@ public class AddEntryDialog extends Dialog<Entry> implements Initializable {
         });
 
         btnRemoveMeasure.setOnAction(actionEvent -> {
-            //ObservableList<Measure> checkedItems = cbMeasures.getCheckModel().getCheckedItems();
-            ObservableList<TreeItem<Measure>> selectedItems = tvMeasures.getSelectionModel().getSelectedItems();
+            TreeItem<Measure> selectedItem = tvMeasures.getSelectionModel().getSelectedItem();
 
-            if(CollectionUtils.isNotEmpty(selectedItems)) {
+            if(selectedItem != null) {
 
-                // TODO Remove Items
-                /*
-                selectedItems.stream().map(measure -> {
-                    cbMeasures.getCheckModel().clearCheck(measure);
-                    return measure.getId();
-                }).forEach(MainWindow.measureService::delete);*/
+                Measure measureToDelete = selectedItem.getValue();
+                Optional<ButtonType> deleteMeasure = Alerts.showYesNoDialog("Bestätigung Löschvorgang",
+                        "Möchten Sie die Maßnahme " + measureToDelete.getName() + " wirklich löschen?",
+                                "Der Vorgang kann nicht Rückgängig gemacht werden.");
 
-                //refreshMeasures();
-
+                if(ButtonUtils.isButton(deleteMeasure, ButtonType.YES)) {
+                    if(CollectionUtils.isNotEmpty(measureToDelete.getEntries())) {
+                        Alerts.showErrorDialog("Fehler beim Löschen der Maßnahme",
+                                "Maßnahme konnte nicht gelöscht werden, da Maßnahme einträgen zugeordnet ist.\n" +
+                                        "Bitte löschen sie zuerst alle Vorkommnisse der Maßnahme, bevor Sie die Maßnahme selbst löschen");
+                    } else if (measureHasChildren(measureToDelete)) {
+                        Alerts.showErrorDialog("Fehler beim Löschen der Maßnahme",
+                                "Maßnahme konnte nicht gelöscht werden, da die Maßnahme noch weitere Maßnahmen" +
+                                        " (Kindobjekte) zugeordnet hat");
+                    } else {
+                        MainWindow.measureService.delete(measureToDelete.getId());
+                        refreshMeasures();
+                    }
+                }
             } else {
                 Alerts.showErrorDialog(
                         "Fehler beim Löschen der Maßnahme",
@@ -148,14 +233,13 @@ public class AddEntryDialog extends Dialog<Entry> implements Initializable {
         });
     }
 
-    /* TODO refreshItems
+    private boolean measureHasChildren(Measure measureToDelete) {
+        return CollectionUtils.isNotEmpty(measureToDelete.getChildren());
+    }
+
     private void refreshMeasures() {
-        observableMeasureList.clear();
-        List<Measure> allMeasures = MainWindow.measureService.findAll();
-        observableMeasureList.addAll(allMeasures != null ? allMeasures : new ArrayList<>());
-        cbMeasures.getItems().clear();
-        cbMeasures.getItems().addAll(observableMeasureList);
-    } */
+        tvMeasures.setRoot(createRootMeasureItemByMeasures());
+    }
 
     private void addMeasure(Optional<String> result) {
 
@@ -166,7 +250,7 @@ public class AddEntryDialog extends Dialog<Entry> implements Initializable {
         var measureByName = MainWindow.measureService.findByName(nameOfMeasure);
         if(measureByName == null) {
             MainWindow.measureService.persist(measure);
-            //refreshMeasures(); TODO ADD Items
+            refreshMeasures();
         } else {
             Alerts.showErrorDialog(
                     "Fehler beim Hinzufügen der Maßnahme",
@@ -189,11 +273,10 @@ public class AddEntryDialog extends Dialog<Entry> implements Initializable {
 
         if(isInputValid(dpRealizedAt, tfContainer, spinAmount.getValue())){
 
-            LocalDate realizedAt = dpRealizedAt.getValue();
+            Date realizedAt = Date.valueOf(dpRealizedAt.getValue());
             String container = tfContainer.getText();
             Integer amount = spinAmount.getValue();
-            //ObservableList<Measure> checkedMeasures = cbMeasures.getCheckModel().getCheckedItems();
-            ObservableList<TreeItem<Measure>> selectedMeasures = tvMeasures.getSelectionModel().getSelectedItems();
+            TreeItem<Measure> selectedMeasure = tvMeasures.getSelectionModel().getSelectedItem();
 
             //Save ContainerAmountMap
             Integer amountByContainerAmountMap = getAmountByContainer(container);
@@ -203,20 +286,29 @@ public class AddEntryDialog extends Dialog<Entry> implements Initializable {
                 MainWindow.containerAmountMapService.update(new ContainerAmountMap(container, amount));
             }
 
-            // Save Entry
-            Entry entry = new Entry();
-            entry.setRealizedAt(Date.valueOf(realizedAt));
-            entry.setContainer(container);
-            entry.setWine(wine);
-            entry.setAmount(amount);
 
-            if(CollectionUtils.isNotEmpty(selectedMeasures)) {
-                entry.setMeasure(selectedMeasures.get(0).getValue()); // FIXME replace this after UI change to TreeList
+            boolean newEntry = false;
+
+            if(entry == null) {
+                // Save Entry
+                entry = new Entry();
+                entry.setCreatedAt(new Date(new java.util.Date().getTime()));
+                entry.setWine(wine);
+                newEntry = true;
             }
 
-            MainWindow.entryService.persist(entry);
+            entry.setRealizedAt(realizedAt);
+            entry.setContainer(container);
+            entry.setAmount(amount);
+            entry.setMeasure(selectedMeasure.getValue());
 
-            addEntryDialogSuccessAction.onSuccess(entry);
+            if(newEntry) {
+                MainWindow.entryService.persist(entry);
+            } else {
+                MainWindow.entryService.update(entry);
+            }
+
+            entryDialogSuccessAction.onSuccess(entry);
             closeDialog(actionEvent);
         }
     }
@@ -262,11 +354,15 @@ public class AddEntryDialog extends Dialog<Entry> implements Initializable {
         this.wine = wine;
     }
 
-    public void setYear(String year) {
-        this.year = year;
+    public void setEntryDialogSuccessAction(IEntryDialogSuccessAction entryDialogSuccessAction) {
+        this.entryDialogSuccessAction = entryDialogSuccessAction;
     }
 
-    public void setAddEntryDialogSuccessAction(IAddOrEditEntryDialogSuccessAction addEntryDialogSuccessAction) {
-        this.addEntryDialogSuccessAction = addEntryDialogSuccessAction;
+    public Entry getEntry() {
+        return entry;
+    }
+
+    public void setEntry(Entry entry) {
+        this.entry = entry;
     }
 }
