@@ -16,6 +16,11 @@
               <MenuItem mnemonicParsing="false" onAction="#closeWindowEvent" text="Schließen" />
             </items>
           </Menu>
+            <Menu text="Verwalten">
+                <items>
+                    <MenuItem text="Tanks verwalten" onAction="#openWindowManageContainers" />
+                </items>
+            </Menu>
           <Menu mnemonicParsing="false" text="Datensicherung">
             <items>
               <MenuItem disable="true" mnemonicParsing="false" text="Sicherungen verwalten" />

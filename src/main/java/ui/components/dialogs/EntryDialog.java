@@ -9,7 +9,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-import persistence.model.ContainerAmountMap;
 import persistence.model.Entry;
 import persistence.model.Measure;
 import persistence.model.Wine;
@@ -102,7 +101,7 @@ public class EntryDialog extends Dialog<Entry> implements Initializable {
         if(entry != null) {
 
             dpRealizedAt.setValue(entry.getRealizedAt() != null ? entry.getRealizedAt().toLocalDate() : LocalDate.now());
-            tfContainer.setText(entry.getContainer());
+            //tfContainer.setText(entry.getContainer()); // FIXME
             spinAmount.getEditor().setText(entry.getAmount() != null ? String.valueOf(entry.getAmount()) : "0");
             spinAmount.commitValue();
 
@@ -180,10 +179,10 @@ public class EntryDialog extends Dialog<Entry> implements Initializable {
     private Integer getAmountByContainer(String container) {
         if(StringUtils.isNotBlank(container)) {
             System.out.println("getAmountByContainer: "+container);
-            var containerAmountMap = MainWindow.containerAmountMapService.findById(container);
+            /*var containerAmountMap = MainWindow.containerAmountMapService.findById(container);
             if(containerAmountMap != null) {
                 return containerAmountMap.getAmount();
-            }
+            }*/ // FIXME
         }
 
         return null;
@@ -281,9 +280,9 @@ public class EntryDialog extends Dialog<Entry> implements Initializable {
             //Save ContainerAmountMap
             Integer amountByContainerAmountMap = getAmountByContainer(container);
             if(amountByContainerAmountMap == null) {
-                MainWindow.containerAmountMapService.persist(new ContainerAmountMap(container, amount));
+                //MainWindow.containerAmountMapService.persist(new ContainerAmountMap(container, amount)); FIXME
             } else if (amountByContainerAmountMap.intValue() != amount.intValue()) {
-                MainWindow.containerAmountMapService.update(new ContainerAmountMap(container, amount));
+                // MainWindow.containerAmountMapService.update(new ContainerAmountMap(container, amount)); FIXME
             }
 
 
@@ -298,7 +297,7 @@ public class EntryDialog extends Dialog<Entry> implements Initializable {
             }
 
             entry.setRealizedAt(realizedAt);
-            entry.setContainer(container);
+            //entry.setContainer(container); FIXME
             entry.setAmount(amount);
             entry.setMeasure(selectedMeasure.getValue());
 

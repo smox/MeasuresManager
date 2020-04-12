@@ -2,9 +2,7 @@ package persistence.model;
 
 import javax.persistence.*;
 import java.sql.Date;
-import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
 
 @Entity
 public class Entry {
@@ -24,8 +22,9 @@ public class Entry {
     @Column(nullable = false)
     private Integer amount;
 
-    @Column(nullable = false)
-    private String container;
+    @ManyToOne
+    @JoinColumn(nullable = false)
+    private Container container;
 
     @Column(name = "ADDITIONAL_INFORMATION")
     private String additionalInformation;
@@ -79,11 +78,11 @@ public class Entry {
         this.amount = amount;
     }
 
-    public String getContainer() {
+    public Container getContainer() {
         return container;
     }
 
-    public void setContainer(String container) {
+    public void setContainer(Container container) {
         this.container = container;
     }
 

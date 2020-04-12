@@ -19,6 +19,7 @@ import persistence.service.*;
 import ui.components.dialogs.EntryDialog;
 import ui.components.dialogs.Alerts;
 import ui.components.dialogs.GenericAddDialog;
+import ui.components.dialogs.ManageContainers;
 import ui.components.listview.WineCellView;
 import ui.components.listview.actions.WineDeleteAction;
 import ui.components.listview.actions.WineModifyAction;
@@ -41,7 +42,6 @@ public class MainWindow implements Initializable {
     public static EntryService entryService = new EntryService();
     public static SettingService settingService = new SettingService();
     public static MeasureService measureService = new MeasureService();
-    public static ContainerAmountMapService containerAmountMapService = new ContainerAmountMapService();
 
     public static Setting setting;
 
@@ -187,7 +187,7 @@ public class MainWindow implements Initializable {
             ObservableList<Entry> selectedEntries = tblViewMeasures.getSelectionModel().getSelectedItems();
             if(CollectionUtils.isNotEmpty(selectedEntries)) {
                 Entry entry = selectedEntries.get(0);
-                entryDialog.setContainer(entry.getContainer());
+                //entryDialog.setContainer(entry.getContainer()); // FIXME
                 entryDialog.setSpinAmount(entry.getAmount());
             }
 
@@ -317,5 +317,22 @@ public class MainWindow implements Initializable {
                     "Der Wein mit dem Namen "+wine.getName()+" gibt es in dem Jahr "+wine.getYear()+" bereits!");
         }
 
+    }
+
+    public void openWindowManageContainers(ActionEvent actionEvent) {
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/ui/components/dialogs/ManageContainers.fxml"));
+            Parent fxmlWindow = fxmlLoader.load();
+
+            Scene scene = new Scene(fxmlWindow);
+            Stage stage = new Stage();
+            stage.setTitle("Eintrag bearbeiten");
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setScene(scene);
+            stage.showAndWait();
+        } catch (IOException e) {
+            // TODO Logging
+            e.printStackTrace();
+        }
     }
 }

@@ -34,7 +34,9 @@
         <mapping class="persistence.model.Measure"/>
         <mapping class="persistence.model.Setting"/>
         <mapping class="persistence.model.Wine"/>
-        <mapping class="persistence.model.ContainerAmountMap"/>
+        <mapping class="persistence.model.Container"/>
+        <mapping class="persistence.model.ContainerType"/>
+        <mapping class="persistence.model.Location"/>
 
     </session-factory>
 </hibernate-configuration>

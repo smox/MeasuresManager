@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.scene.control.cell.TextFieldTableCell?>
+
+<BorderPane fx:controller="ui.components.dialogs.ManageContainers" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
+   <right>
+      <VBox prefHeight="100.0" prefWidth="10.0" BorderPane.alignment="CENTER">
+         <children>
+             <Button mnemonicParsing="false" prefWidth="30" text="+" >
+                 <VBox.margin>
+                     <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                 </VBox.margin>
+             </Button>
+             <Button mnemonicParsing="false" prefWidth="30" text="-">
+                 <VBox.margin>
+                     <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+                 </VBox.margin>
+             </Button>
+         </children>
+      </VBox>
+   </right>
+   <center>
+      <TableView fx:id="tblViewContainers" prefHeight="472.0" editable="true" prefWidth="620.0" BorderPane.alignment="CENTER">
+        <columns>
+            <TableColumn text="ID">
+                <cellValueFactory>
+                    <PropertyValueFactory property="id" />
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn text="Bezeichnung" onEditCommit="#editDesignation">
+                <cellValueFactory>
+                    <PropertyValueFactory property="designation" />
+                </cellValueFactory>
+                <cellFactory>
+                    <TextFieldTableCell fx:factory="forTableColumn" />
+                </cellFactory>
+            </TableColumn>
+            <TableColumn text="Art">
+                <cellValueFactory>
+                    <PropertyValueFactory property="containerType" />
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn text="Aufstellungsort">
+                <cellValueFactory>
+                    <PropertyValueFactory property="location" />
+                </cellValueFactory>
+            </TableColumn>
+            <TableColumn text="Inhalt in L" onEditCommit="#editCapacity" fx:id="tblColCapacity">
+                <cellValueFactory>
+                    <PropertyValueFactory property="capacity" />
+                </cellValueFactory>
+            </TableColumn>
+        </columns>
+          <placeholder><Label text="Keine Tanks" /></placeholder>
+         <columnResizePolicy>
+            <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+         </columnResizePolicy>
+      </TableView>
+   </center>
+</BorderPane>
