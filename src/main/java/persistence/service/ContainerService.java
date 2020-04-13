@@ -4,6 +4,7 @@ import persistence.dao.ContainerDao;
 import persistence.model.Container;
 import persistence.model.Entry;
 
+import java.util.Date;
 import java.util.List;
 
 public class ContainerService {
@@ -26,6 +27,19 @@ public class ContainerService {
         Container model = dao.findByDesignation(designation);
         dao.closeCurrentSession();
         return model;
+    }
+
+    public void delete(Long id) {
+        dao.openCurrentSessionwithTransaction();
+        Container container = dao.findById(id);
+        dao.delete(container);
+        dao.closeCurrentSessionwithTransaction();
+    }
+
+    public void delete(Container container) {
+        dao.openCurrentSessionwithTransaction();
+        dao.delete(container);
+        dao.closeCurrentSessionwithTransaction();
     }
 
     public void update(Container container) {

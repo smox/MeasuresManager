@@ -1,6 +1,8 @@
 package persistence.model;
 
 import javax.persistence.*;
+import java.util.Date;
+import java.util.List;
 
 @Entity
 public class Container {
@@ -20,6 +22,12 @@ public class Container {
     private Location location;
 
     private Integer capacity;
+
+    @OneToMany(mappedBy = "container")
+    private List<Entry> entries;
+
+    @Column(name = "deleted_at")
+    private Date deletedAt;
 
     /* Boilerplate Code */
     public Long getId() {
@@ -60,5 +68,21 @@ public class Container {
 
     public void setCapacity(Integer capacity) {
         this.capacity = capacity;
+    }
+
+    public List<Entry> getEntries() {
+        return entries;
+    }
+
+    public void setEntries(List<Entry> entries) {
+        this.entries = entries;
+    }
+
+    public Date getDeletedAt() {
+        return deletedAt;
+    }
+
+    public void setDeletedAt(Date deletedAt) {
+        this.deletedAt = deletedAt;
     }
 }

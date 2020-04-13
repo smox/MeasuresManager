@@ -1,6 +1,7 @@
 package persistence.model;
 
 import javax.persistence.*;
+import java.util.Date;
 import java.util.List;
 
 @Entity(name = "CONTAINER_TYPE")
@@ -14,7 +15,6 @@ public class ContainerType {
 
     @OneToMany(targetEntity = Container.class, mappedBy = "containerType")
     private List<Container> containers;
-
 
     /* Boilerplate Code */
     public Long getId() {

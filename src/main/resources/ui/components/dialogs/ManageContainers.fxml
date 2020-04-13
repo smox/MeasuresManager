@@ -12,12 +12,12 @@
    <right>
       <VBox prefHeight="100.0" prefWidth="10.0" BorderPane.alignment="CENTER">
          <children>
-             <Button mnemonicParsing="false" prefWidth="30" text="+" >
+             <Button mnemonicParsing="false" prefWidth="30" text="+" onAction="#addContainer">
                  <VBox.margin>
                      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                  </VBox.margin>
              </Button>
-             <Button mnemonicParsing="false" prefWidth="30" text="-">
+             <Button mnemonicParsing="false" prefWidth="30" text="-" onAction="#removeContainer">
                  <VBox.margin>
                      <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
                  </VBox.margin>

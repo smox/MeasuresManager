@@ -2,22 +2,25 @@ package ui.components.dialogs;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.TableColumn;
+import javafx.scene.control.*;
 import javafx.scene.control.TableColumn.CellEditEvent;
-import javafx.scene.control.TableView;
 import javafx.scene.control.cell.TextFieldTableCell;
+import org.jboss.jandex.Main;
 import persistence.model.Container;
 import persistence.model.ContainerType;
 import persistence.model.Location;
 import ui.MainWindow;
 import ui.converter.CheckedIntegerStringConverter;
 import ui.converter.ContainerTypeConverter;
+import utils.ButtonUtils;
+import utils.CollectionUtils;
 import utils.StringUtils;
 
 import java.net.URL;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class ManageContainers extends Dialog<Container> implements Initializable {
@@ -159,5 +162,25 @@ public class ManageContainers extends Dialog<Container> implements Initializable
         }
 
         loadContainersIntoTable();
+    }
+
+    public void addContainer(ActionEvent actionEvent) {
+
+    }
+
+    public void removeContainer(ActionEvent actionEvent) {
+        Container selectedItem = tblViewContainers.getSelectionModel().getSelectedItem();
+        if(selectedItem != null) {
+            Optional<ButtonType> buttonType = Alerts.showYesNoDialog("Wirklich löschen?",
+                    "Sind Sie sich sicher, dass "+ selectedItem.getDesignation() +" wirklich gelöscht werden soll?",
+                    "Die Änderung kann nicht rückgängig gemacht werden!");
+
+            if(ButtonUtils.isButton(buttonType, ButtonType.YES)){
+                MainWindow.containerService.delete(selectedItem);
+                loadContainersIntoTable();
+            }
+        } else {
+            Alerts.showErrorDialog("Kein Behälter ausgewählt!", "Bitte wähle einen Behälter aus!");
+        }
     }
 }
