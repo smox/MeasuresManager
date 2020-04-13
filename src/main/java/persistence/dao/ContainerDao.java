@@ -18,6 +18,7 @@ public class ContainerDao extends AbstractDao<Container> {
                 .add(Restrictions.eq("designation", designation))
                 .uniqueResult();
     }
+
 }
 
 

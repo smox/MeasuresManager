@@ -13,8 +13,6 @@
         <maven.compiler.release>13</maven.compiler.release>
         <h2.version>1.4.200</h2.version>
     </properties>
-
-
     <dependencies>
         <!-- UI libraries -->
         <dependency>
@@ -76,6 +74,10 @@
                 <version>3.8.0</version>
                 <configuration>
                     <encoding>UTF-8</encoding>
+                    <compilerArgs>
+                        <arg>--add-opens</arg><arg>javafx.controls/javafx.scene.control.skin=ALL-UNNAMED</arg>
+                        <arg>--add-exports</arg><arg>javafx.base/com.sun.javafx.event=org.controlsfx.controls</arg>
+                    </compilerArgs>
                 </configuration>
             </plugin>
             <plugin>
@@ -83,6 +85,21 @@
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>0.0.4</version>
                 <configuration>
+                    <compilerArgs>
+                        <arg>--add-opens</arg><arg>javafx.controls/javafx.scene.control.skin=ALL-UNNAMED</arg>
+                        <arg>--add-exports</arg><arg>javafx.base/com.sun.javafx.event=org.controlsfx.controls</arg>
+                        <arg>--add-exports</arg><arg>javafx.base/com.sun.javafx.event=ALL-UNNAMED</arg>
+                    </compilerArgs>
+                    <commandlineArgs>
+                        --add-opens=javafx.controls/javafx.scene.control.skin=ALL-UNNAMED
+                        --add-exports=javafx.base/com.sun.javafx.event=org.controlsfx.controls
+                        --add-exports=javafx.base/com.sun.javafx.event=ALL-UNNAMED
+                    </commandlineArgs>
+                    <options>
+                        <option>--add-opens</option><option>javafx.controls/javafx.scene.control.skin=ALL-UNNAMED</option>
+                        <option>--add-exports</option><option>javafx.base/com.sun.javafx.event=org.controlsfx.controls</option>
+                        <option>--add-exports</option><option>javafx.base/com.sun.javafx.event=ALL-UNNAMED</option>
+                    </options>
                     <mainClass>MeasuresManager</mainClass>
                 </configuration>
             </plugin>

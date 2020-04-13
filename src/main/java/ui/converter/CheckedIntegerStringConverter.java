@@ -1,7 +1,6 @@
 package ui.converter;
 
 import javafx.util.converter.IntegerStringConverter;
-import ui.components.dialogs.Alerts;
 
 public class CheckedIntegerStringConverter extends IntegerStringConverter {
 

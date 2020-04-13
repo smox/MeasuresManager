@@ -6,6 +6,7 @@ import javax.persistence.*;
 public class Container {
 
     @Id
+    @GeneratedValue(strategy= GenerationType.AUTO)
     private Long id;
 
     @Column(unique = true)

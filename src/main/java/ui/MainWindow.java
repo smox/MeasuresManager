@@ -42,6 +42,10 @@ public class MainWindow implements Initializable {
     public static EntryService entryService = new EntryService();
     public static SettingService settingService = new SettingService();
     public static MeasureService measureService = new MeasureService();
+    public static ContainerService containerService = new ContainerService();
+    public static ContainerTypeService containerTypeService = new ContainerTypeService();
+    public static LocationService locationService = new LocationService();
+
 
     public static Setting setting;
 

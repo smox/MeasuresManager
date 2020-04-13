@@ -9,10 +9,12 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.TextFieldTableCell;
-import javafx.util.converter.IntegerStringConverter;
 import persistence.model.Container;
-import persistence.service.ContainerService;
+import persistence.model.ContainerType;
+import persistence.model.Location;
+import ui.MainWindow;
 import ui.converter.CheckedIntegerStringConverter;
+import ui.converter.ContainerTypeConverter;
 import utils.StringUtils;
 
 import java.net.URL;
@@ -20,13 +22,14 @@ import java.util.ResourceBundle;
 
 public class ManageContainers extends Dialog<Container> implements Initializable {
 
-    private static ContainerService containerService = new ContainerService();
-
     @FXML
     TableView<Container> tblViewContainers;
 
     @FXML
     TableColumn<Container, Integer> tblColCapacity;
+
+    @FXML
+    TableColumn<Container, ContainerType> tblColContainerType;
 
     ObservableList<Container> observableContainersList;
 
@@ -37,12 +40,12 @@ public class ManageContainers extends Dialog<Container> implements Initializable
     }
 
     private void initializeTableColumns() {
-        // Necessary to use an integer value
         tblColCapacity.setCellFactory(TextFieldTableCell.forTableColumn(new CheckedIntegerStringConverter()));
+        //tblColContainerType.setCellFactory(TextFieldTableCell.forTableColumn(new ContainerTypeConverter()));
     }
 
     private void loadContainersIntoTable() {
-        observableContainersList = FXCollections.observableList(containerService.findAll());
+        observableContainersList = FXCollections.observableList(MainWindow.containerService.findAll());
         tblViewContainers.setItems(observableContainersList);
     }
 
@@ -54,11 +57,11 @@ public class ManageContainers extends Dialog<Container> implements Initializable
         if(StringUtils.isNotBlank(newDesignation)) {
             if(StringUtils.isNotEqual(oldDesignation, newDesignation)) {
                 newDesignation = newDesignation.trim();
-                Container container = containerService.findByDesignation(newDesignation);
+                Container container = MainWindow.containerService.findByDesignation(newDesignation);
                 if(container == null) {
                     container = cellEditEvent.getRowValue();
                     container.setDesignation(newDesignation);
-                    containerService.update(container);
+                    MainWindow.containerService.update(container);
                 } else {
                     Alerts.showErrorDialog("Bezeichnung existiert bereits!",
                             "Bitte wähle eine Bezeichnung die es noch nicht gibt!");
@@ -82,7 +85,7 @@ public class ManageContainers extends Dialog<Container> implements Initializable
             if(newCapacity > 0) {
                 Container container = cellEditEvent.getRowValue();
                 container.setCapacity(newCapacity);
-                containerService.update(container);
+                MainWindow.containerService.update(container);
             } else {
                 Alerts.showErrorDialog("Menge zu klein!",
                         "Bitte gibt einen Wert ein der größer als 0 ist!");
@@ -90,6 +93,69 @@ public class ManageContainers extends Dialog<Container> implements Initializable
             }
         } else {
             Alerts.showErrorDialog("Neue Menge ist leer!", "Bitte gib eine gültige Menge ein!");
+        }
+
+        loadContainersIntoTable();
+    }
+
+    public void editContainerType(CellEditEvent<Container, ContainerType> cellEditEvent) {
+
+        ContainerType oldValue = cellEditEvent.getOldValue();
+        ContainerType newValue = cellEditEvent.getNewValue();
+
+        if(StringUtils.isNotBlank(newValue.getName())) {
+            if(StringUtils.isNotEqual(oldValue.getName(), newValue.getName())) {
+
+                newValue.setName(newValue.getName().trim());
+                ContainerType containerType = MainWindow.containerTypeService.findByName(newValue.getName());
+
+                if(containerType == null) {
+
+                    containerType = new ContainerType();
+                    containerType.setName(newValue.getName());
+                    MainWindow.containerTypeService.persist(containerType);
+                    containerType = MainWindow.containerTypeService.findByName(newValue.getName());
+
+                }
+
+                Container container = cellEditEvent.getRowValue();
+                container.setContainerType(containerType);
+                MainWindow.containerService.update(container);
+            }
+        } else {
+            Alerts.showErrorDialog("Neue Bezeichnung ist leer!",
+                    "Bitte gib eine gültige Bezeichnung ein!");
+        }
+
+        loadContainersIntoTable();
+    }
+
+    public void editLocation(CellEditEvent<Container, Location> cellEditEvent) {
+
+        Location oldValue = cellEditEvent.getOldValue();
+        Location newValue = cellEditEvent.getNewValue();
+
+        if(StringUtils.isNotBlank(newValue.getName())) {
+            if(StringUtils.isNotEqual(oldValue.getName(), newValue.getName())) {
+
+                newValue.setName(newValue.getName().trim());
+                Location location = MainWindow.locationService.findByName(newValue.getName());
+
+                if(location == null) {
+
+                    location = new Location();
+                    location.setName(newValue.getName());
+                    MainWindow.locationService.persist(location);
+                    location = MainWindow.locationService.findByName(newValue.getName());
+
+                }
+
+                Container container = cellEditEvent.getRowValue();
+                container.setLocation(location);
+                MainWindow.containerService.update(container);
+            }
+        } else {
+            Alerts.showErrorDialog("Ort ist leer!", "Bitte gib einen gültigen Ort ein!");
         }
 
         loadContainersIntoTable();

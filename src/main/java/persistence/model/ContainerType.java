@@ -1,14 +1,13 @@
 package persistence.model;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.util.List;
 
 @Entity(name = "CONTAINER_TYPE")
 public class ContainerType {
 
     @Id
+    @GeneratedValue(strategy= GenerationType.AUTO)
     private Long id;
 
     private String name;
@@ -16,10 +15,6 @@ public class ContainerType {
     @OneToMany(targetEntity = Container.class, mappedBy = "containerType")
     private List<Container> containers;
 
-    @Override
-    public String toString() {
-        return name;
-    }
 
     /* Boilerplate Code */
     public Long getId() {
