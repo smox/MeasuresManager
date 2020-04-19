@@ -1,15 +1,16 @@
 package ui.converter;
 
 import javafx.util.StringConverter;
-import persistence.model.ContainerType;
 import persistence.model.Location;
 
 public class LocationConverter extends StringConverter<Location> {
 
 
     @Override
-    public String toString(Location containerType) {
-        return containerType.getName();
+    public String toString(Location location) {
+        if(location == null)
+            return "";
+        return location.getName();
     }
 
     @Override

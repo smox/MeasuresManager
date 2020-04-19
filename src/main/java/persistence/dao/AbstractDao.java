@@ -3,6 +3,7 @@ package persistence.dao;
 
 import org.hibernate.criterion.Restrictions;
 
+import java.io.Serializable;
 import java.util.List;
 
 public class AbstractDao<T> extends Dao implements ICrudDao<T> {

@@ -1,22 +1,25 @@
 package ui.components.dialogs;
 
+import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.control.TableColumn.CellEditEvent;
+import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
-import org.jboss.jandex.Main;
+import javafx.util.Callback;
 import persistence.model.Container;
 import persistence.model.ContainerType;
 import persistence.model.Location;
 import ui.MainWindow;
 import ui.converter.CheckedIntegerStringConverter;
-import ui.converter.ContainerTypeConverter;
 import utils.ButtonUtils;
-import utils.CollectionUtils;
 import utils.StringUtils;
 
 import java.net.URL;
@@ -32,6 +35,9 @@ public class ManageContainers extends Dialog<Container> implements Initializable
     TableColumn<Container, Integer> tblColCapacity;
 
     @FXML
+    TableColumn<Container, Boolean> tblColAlwaysFullContainer;
+
+    @FXML
     TableColumn<Container, ContainerType> tblColContainerType;
 
     ObservableList<Container> observableContainersList;
@@ -44,7 +50,22 @@ public class ManageContainers extends Dialog<Container> implements Initializable
 
     private void initializeTableColumns() {
         tblColCapacity.setCellFactory(TextFieldTableCell.forTableColumn(new CheckedIntegerStringConverter()));
-        //tblColContainerType.setCellFactory(TextFieldTableCell.forTableColumn(new ContainerTypeConverter()));
+
+        tblColAlwaysFullContainer.setCellValueFactory(param -> {
+            Container container = param.getValue();
+            SimpleBooleanProperty booleanProp = new SimpleBooleanProperty(container.getAlwaysFullContainer());
+            booleanProp.addListener((observable, oldValue, newValue) -> {
+                container.setAlwaysFullContainer(newValue);
+                MainWindow.containerService.update(container);
+            });
+            return booleanProp;
+        });
+
+        tblColAlwaysFullContainer.setCellFactory(param -> {
+            CheckBoxTableCell<Container, Boolean> cell = new CheckBoxTableCell<Container, Boolean>();
+            cell.setAlignment(Pos.CENTER);
+            return cell;
+        });
     }
 
     private void loadContainersIntoTable() {
@@ -107,7 +128,7 @@ public class ManageContainers extends Dialog<Container> implements Initializable
         ContainerType newValue = cellEditEvent.getNewValue();
 
         if(StringUtils.isNotBlank(newValue.getName())) {
-            if(StringUtils.isNotEqual(oldValue.getName(), newValue.getName())) {
+            if(oldValue == null || StringUtils.isNotEqual(oldValue.getName(), newValue.getName())) {
 
                 newValue.setName(newValue.getName().trim());
                 ContainerType containerType = MainWindow.containerTypeService.findByName(newValue.getName());
@@ -139,7 +160,7 @@ public class ManageContainers extends Dialog<Container> implements Initializable
         Location newValue = cellEditEvent.getNewValue();
 
         if(StringUtils.isNotBlank(newValue.getName())) {
-            if(StringUtils.isNotEqual(oldValue.getName(), newValue.getName())) {
+            if(oldValue == null || StringUtils.isNotEqual(oldValue.getName(), newValue.getName())) {
 
                 newValue.setName(newValue.getName().trim());
                 Location location = MainWindow.locationService.findByName(newValue.getName());
@@ -165,7 +186,9 @@ public class ManageContainers extends Dialog<Container> implements Initializable
     }
 
     public void addContainer(ActionEvent actionEvent) {
-
+        Container container = new Container("Neuer Container");
+        MainWindow.containerService.persist(container);
+        loadContainersIntoTable();
     }
 
     public void removeContainer(ActionEvent actionEvent) {
@@ -183,4 +206,5 @@ public class ManageContainers extends Dialog<Container> implements Initializable
             Alerts.showErrorDialog("Kein Behälter ausgewählt!", "Bitte wähle einen Behälter aus!");
         }
     }
+
 }

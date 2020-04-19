@@ -1,14 +1,9 @@
 package persistence.dao;
 
 import org.hibernate.criterion.Restrictions;
-import persistence.model.Entry;
 
 
 import persistence.model.Container;
-import persistence.model.Measure;
-
-import java.sql.SQLDataException;
-import java.sql.SQLException;
 import java.util.Date;
 import java.util.List;
 

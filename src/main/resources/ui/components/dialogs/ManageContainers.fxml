@@ -8,6 +8,7 @@
 <?import javafx.scene.control.cell.TextFieldTableCell?>
 
 <?import ui.components.tableview.components.AutoCompleteTextFieldTableCell?>
+<?import ui.factories.CheckBoxTableCellFactory?>
 <BorderPane fx:controller="ui.components.dialogs.ManageContainers" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1">
    <right>
       <VBox prefHeight="100.0" prefWidth="10.0" BorderPane.alignment="CENTER">
@@ -57,6 +58,7 @@
                     <AutoCompleteTextFieldTableCell fx:factory="forLocationColumn" />
                 </cellFactory>
             </TableColumn>
+            <TableColumn text="Immervoll?" fx:id="tblColAlwaysFullContainer" />
             <TableColumn text="Inhalt in L" onEditCommit="#editCapacity" fx:id="tblColCapacity">
                 <cellValueFactory>
                     <PropertyValueFactory property="capacity" />

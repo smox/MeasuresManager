@@ -47,4 +47,10 @@ public class ContainerService {
         dao.update(container);
         dao.closeCurrentSessionwithTransaction();
     }
+
+    public void persist(Container container) {
+        dao.openCurrentSessionwithTransaction();
+        dao.persist(container);
+        dao.closeCurrentSessionwithTransaction();
+    }
 }

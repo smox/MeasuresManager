@@ -11,7 +11,6 @@ public class Container {
     @GeneratedValue(strategy= GenerationType.AUTO)
     private Long id;
 
-    @Column(unique = true)
     private String designation;
 
     @ManyToOne(targetEntity = ContainerType.class)
@@ -23,13 +22,28 @@ public class Container {
 
     private Integer capacity;
 
+    @Column(name = "IS_ALWAYS_FULL_CONTAINER", nullable = false)
+    private Boolean isAlwaysFullContainer;
+
     @OneToMany(mappedBy = "container")
     private List<Entry> entries;
 
     @Column(name = "deleted_at")
     private Date deletedAt;
 
+
     /* Boilerplate Code */
+
+    public Container() {
+        capacity = 10000;
+        isAlwaysFullContainer = false;
+    }
+
+    public Container(String designation) {
+        this();
+        this.designation = designation;
+    }
+
     public Long getId() {
         return id;
     }
@@ -84,5 +98,13 @@ public class Container {
 
     public void setDeletedAt(Date deletedAt) {
         this.deletedAt = deletedAt;
+    }
+
+    public Boolean getAlwaysFullContainer() {
+        return isAlwaysFullContainer;
+    }
+
+    public void setAlwaysFullContainer(Boolean alwaysFullContainer) {
+        isAlwaysFullContainer = alwaysFullContainer;
     }
 }

@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 
 public class AutoCompleteTextFieldTableCell<S, T> extends TableCell<S, T> {
 
-    private List<String> autoCompleteSuggestions;
+    private final List<String> autoCompleteSuggestions;
 
     /***************************************************************************
      *                                                                         *
@@ -119,7 +119,7 @@ public class AutoCompleteTextFieldTableCell<S, T> extends TableCell<S, T> {
     }
 
     /**
-     * Creates a TextFieldTableCell that provides a {@link TextField} when put
+     * Creates a AutoCompleteTextFieldTableCell that provides a {@link TextField} when put
      * into editing mode that allows editing of the cell content. This method
      * will work on any TableColumn instance, regardless of its generic type.
      * However, to enable this, a {@link StringConverter} must be provided that

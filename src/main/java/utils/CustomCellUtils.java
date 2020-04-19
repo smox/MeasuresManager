@@ -4,14 +4,19 @@ import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.property.ObjectProperty;
 import javafx.collections.ObservableList;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.control.TextField;
 import javafx.scene.control.skin.ComboBoxListViewSkin;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.util.StringConverter;
+import ui.converter.BooleanConverter;
+
+import java.awt.*;
 
 public class CustomCellUtils {
 
@@ -137,6 +142,15 @@ public class CustomCellUtils {
         return choiceBox;
     }
 
+    public static <S, T> CheckBox createCheckBox(final Cell<T> cell, BooleanConverter<T> converter) {
+
+        CheckBox checkBox = new CheckBox();
+        checkBox.setAlignment(Pos.CENTER);
+        checkBox.selectedProperty().addListener((observable, oldValue, newValue) -> cell.commitEdit(converter.fromBoolean(newValue)));
+
+        return checkBox;
+    }
+
 
 
     /***************************************************************************
@@ -179,6 +193,34 @@ public class CustomCellUtils {
         }
     }
 
+    public static <T> void updateItem(final Cell<T> cell,
+                                      final BooleanConverter<T> converter,
+                                      final HBox hbox,
+                                      final Node graphic,
+                                      final CheckBox checkBox) {
+        if (cell.isEmpty()) {
+            cell.setText(null);
+            cell.setGraphic(null);
+        } else {
+            if (cell.isEditing()) {
+                if (checkBox != null) {
+                    checkBox.setSelected(converter.toBoolean(cell.getItem()));
+                }
+                cell.setText(null);
+
+                if (graphic != null) {
+                    hbox.getChildren().setAll(graphic, checkBox);
+                    cell.setGraphic(hbox);
+                } else {
+                    cell.setGraphic(checkBox);
+                }
+            } else {
+                //checkBox.setSelected(converter.toBoolean(cell.getItem()));
+                cell.setGraphic(graphic);
+            }
+        }
+    }
+
     public static <T> void startEdit(final Cell<T> cell,
                                      final StringConverter<T> converter,
                                      final HBox hbox,
@@ -203,8 +245,35 @@ public class CustomCellUtils {
         textField.requestFocus();
     }
 
+    public static <T> void startEdit(final Cell<T> cell,
+                                     final BooleanConverter<T> converter,
+                                     final HBox hbox,
+                                     final Node graphic,
+                                     final CheckBox checkBox) {
+        if (checkBox != null) {
+            checkBox.setSelected(converter.toBoolean(cell.getItem()));
+        }
+        cell.setText(null);
+
+        if (graphic != null) {
+            hbox.getChildren().setAll(graphic, checkBox);
+            cell.setGraphic(hbox);
+        } else {
+            cell.setGraphic(checkBox);
+        }
+
+        // requesting focus so that key input can immediately go into the
+        // CheckBox (see RT-28132)
+        checkBox.requestFocus();
+    }
+
     public static <T> void cancelEdit(Cell<T> cell, final StringConverter<T> converter, Node graphic) {
         cell.setText(getItemText(cell, converter));
+        cell.setGraphic(graphic);
+    }
+
+    public static <T> void cancelEdit(Cell<T> cell, final BooleanConverter<T> converter, Node graphic, final CheckBox checkBox) {
+        checkBox.setSelected(converter.toBoolean(cell.getItem()));
         cell.setGraphic(graphic);
     }
 
@@ -339,4 +408,6 @@ public class CustomCellUtils {
         }
         return false;
     }
+
+
 }

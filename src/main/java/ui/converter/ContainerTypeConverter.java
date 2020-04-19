@@ -7,6 +7,8 @@ public class ContainerTypeConverter extends StringConverter<ContainerType> {
 
     @Override
     public String toString(ContainerType containerType) {
+        if(containerType == null)
+            return "";
         return containerType.getName();
     }
 
