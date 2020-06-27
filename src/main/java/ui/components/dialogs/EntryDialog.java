@@ -1,23 +1,27 @@
 package ui.components.dialogs;
 
+import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Dialog;
-import javafx.scene.control.TextField;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
+import org.controlsfx.control.SearchableComboBox;
+import persistence.model.Container;
 import persistence.model.Entry;
 import persistence.model.Measure;
 import persistence.model.Wine;
 import ui.MainWindow;
 import ui.components.dialogs.actions.IEntryDialogSuccessAction;
-import ui.components.spinner.CustomIntegerSpinnerValueFactory;
+import ui.components.dialogs.actions.IGenericReference;
 import utils.ButtonUtils;
 import utils.CollectionUtils;
-import utils.StringUtils;
 
 import java.net.URL;
 import java.sql.Date;
@@ -29,11 +33,14 @@ import java.util.stream.Collectors;
 
 public class EntryDialog extends Dialog<Entry> implements Initializable {
 
+
     private Entry entry;
 
     MainWindow mainWindow;
 
     private Wine wine;
+
+    private boolean initializeOnlyContainer = false;
 
     private IEntryDialogSuccessAction entryDialogSuccessAction;
 
@@ -41,10 +48,7 @@ public class EntryDialog extends Dialog<Entry> implements Initializable {
     private DatePicker dpRealizedAt;
 
     @FXML
-    private TextField tfContainer;
-
-    @FXML
-    private Spinner<Integer> spinAmount;
+    private SearchableComboBox<Container> scbSelectContainer;
 
     @FXML
     private TreeView<Measure> tvMeasures;
@@ -60,24 +64,12 @@ public class EntryDialog extends Dialog<Entry> implements Initializable {
 
         addButtonIcons();
         addButtonActions();
-        addContainerListener();
 
         dpRealizedAt.setValue(LocalDate.now());
-        spinAmount.setValueFactory(new CustomIntegerSpinnerValueFactory(0, Integer.MAX_VALUE, 0));
+        scbSelectContainer.setItems(FXCollections.observableList(MainWindow.containerService.findAll()));
 
         tvMeasures.setRoot(createRootMeasureItemByMeasures());
         tvMeasures.setShowRoot(false);
-
-
-    }
-
-    public void setSpinAmount(int amount) {
-        spinAmount.getEditor().setText(String.valueOf(amount));
-        spinAmount.commitValue();
-    }
-
-    public void setContainer(String container) {
-        tfContainer.setText(container);
     }
 
     private TreeItem<Measure> createRootMeasureItemByMeasures() {
@@ -97,24 +89,22 @@ public class EntryDialog extends Dialog<Entry> implements Initializable {
     }
 
     public void initializeFields() {
-
         if(entry != null) {
 
-            dpRealizedAt.setValue(entry.getRealizedAt() != null ? entry.getRealizedAt().toLocalDate() : LocalDate.now());
-            //tfContainer.setText(entry.getContainer()); // FIXME
-            spinAmount.getEditor().setText(entry.getAmount() != null ? String.valueOf(entry.getAmount()) : "0");
-            spinAmount.commitValue();
+            scbSelectContainer.getSelectionModel().select(entry.getContainer());
 
-            // Select Item by entry
-            MultipleSelectionModel<TreeItem<Measure>> selectionModel = tvMeasures.getSelectionModel();
-            int row = 0;
-            TreeItem<Measure> rootNode = tvMeasures.getRoot();
-            row = getRowByTreeItem(rootNode, entry.getMeasure(), row);
-            selectionModel.select(row);
+            if(!initializeOnlyContainer) {
 
-        } else {
-            // TODO logger.warm
-            System.err.println("Cannot initialize fields when entry is not given or null");
+                dpRealizedAt.setValue(entry.getRealizedAt() != null ? entry.getRealizedAt().toLocalDate() : LocalDate.now());
+                scbSelectContainer.getSelectionModel().select(entry.getContainer());
+
+                // Select Item by entry
+                MultipleSelectionModel<TreeItem<Measure>> selectionModel = tvMeasures.getSelectionModel();
+                int row = 0;
+                TreeItem<Measure> rootNode = tvMeasures.getRoot();
+                row = getRowByTreeItem(rootNode, entry.getMeasure(), row);
+                selectionModel.select(row);
+            }
         }
     }
 
@@ -163,41 +153,15 @@ public class EntryDialog extends Dialog<Entry> implements Initializable {
         return index;
     }
 
-    private void addContainerListener() {
-        tfContainer.focusedProperty().addListener((obs, oldVal, newVal) -> {
-            System.out.println(newVal ? "Focused" : "Unfocused");
-            if(!newVal) {
-                Integer amountByContainer = getAmountByContainer(tfContainer.getText());
-                if(amountByContainer != null) {
-                    spinAmount.getEditor().setText(String.valueOf(amountByContainer));
-                    spinAmount.commitValue();
-                }
-            }
-        });
-    }
-
-    private Integer getAmountByContainer(String container) {
-        if(StringUtils.isNotBlank(container)) {
-            System.out.println("getAmountByContainer: "+container);
-            /*var containerAmountMap = MainWindow.containerAmountMapService.findById(container);
-            if(containerAmountMap != null) {
-                return containerAmountMap.getAmount();
-            }*/ // FIXME
-        }
-
-        return null;
-    }
-
     private void addButtonActions() {
-        btnAddMeasure.setOnAction(actionEvent -> {
-            new GenericAddDialog(
-                    "Maßnahme hinzufügen",
-                    "Neue Maßnahme hinzufügen",
-                    "Bitte geben Sie die Bezeichnung der neuen Maßnahme ein: ",
-                    "Maßnahmenbezeichnung",
-                    this::addMeasure
-            );
-        });
+        btnAddMeasure.setOnAction(actionEvent -> new GenericAddDialog<>(
+                "Maßnahme hinzufügen",
+                "Neue Maßnahme hinzufügen",
+                "Bitte geben Sie die Bezeichnung der neuen Maßnahme ein: ",
+                "Maßnahmenbezeichnung",
+                this::addMeasure,
+                () -> tvMeasures.getSelectionModel().getSelectedItem().getValue()
+        ));
 
         btnRemoveMeasure.setOnAction(actionEvent -> {
             TreeItem<Measure> selectedItem = tvMeasures.getSelectionModel().getSelectedItem();
@@ -240,20 +204,16 @@ public class EntryDialog extends Dialog<Entry> implements Initializable {
         tvMeasures.setRoot(createRootMeasureItemByMeasures());
     }
 
-    private void addMeasure(Optional<String> result) {
-
-        String nameOfMeasure = result.get().trim();
-
+    private void addMeasure(String nameOfMeasure, IGenericReference<Measure> parentReference) {
         Measure measure = new Measure();
         measure.setName(nameOfMeasure);
+        measure.setParent(parentReference.getReference());
         var measureByName = MainWindow.measureService.findByName(nameOfMeasure);
         if(measureByName == null) {
             MainWindow.measureService.persist(measure);
             refreshMeasures();
         } else {
-            Alerts.showErrorDialog(
-                    "Fehler beim Hinzufügen der Maßnahme",
-                    "Diese Maßnahme existiert bereits!");
+            Alerts.showErrorDialog("Fehler beim Hinzufügen der Maßnahme","Diese Maßnahme existiert bereits!");
         }
     }
 
@@ -270,21 +230,11 @@ public class EntryDialog extends Dialog<Entry> implements Initializable {
 
     public void onSuccess(ActionEvent actionEvent) {
 
-        if(isInputValid(dpRealizedAt, tfContainer, spinAmount.getValue())){
+        if(isInputValid(dpRealizedAt, scbSelectContainer)){
 
             Date realizedAt = Date.valueOf(dpRealizedAt.getValue());
-            String container = tfContainer.getText();
-            Integer amount = spinAmount.getValue();
+            Container selectedItem = scbSelectContainer.getSelectionModel().getSelectedItem();
             TreeItem<Measure> selectedMeasure = tvMeasures.getSelectionModel().getSelectedItem();
-
-            //Save ContainerAmountMap
-            Integer amountByContainerAmountMap = getAmountByContainer(container);
-            if(amountByContainerAmountMap == null) {
-                //MainWindow.containerAmountMapService.persist(new ContainerAmountMap(container, amount)); FIXME
-            } else if (amountByContainerAmountMap.intValue() != amount.intValue()) {
-                // MainWindow.containerAmountMapService.update(new ContainerAmountMap(container, amount)); FIXME
-            }
-
 
             boolean newEntry = false;
 
@@ -297,8 +247,7 @@ public class EntryDialog extends Dialog<Entry> implements Initializable {
             }
 
             entry.setRealizedAt(realizedAt);
-            //entry.setContainer(container); FIXME
-            entry.setAmount(amount);
+            entry.setContainer(selectedItem);
             entry.setMeasure(selectedMeasure.getValue());
 
             if(newEntry) {
@@ -312,7 +261,7 @@ public class EntryDialog extends Dialog<Entry> implements Initializable {
         }
     }
 
-    private boolean isInputValid(DatePicker dpRealizedAt, TextField tfContainer, int amount) {
+    private boolean isInputValid(DatePicker dpRealizedAt, SearchableComboBox<Container> scbSelectContainer) {
 
         try {
             dpRealizedAt.getValue();
@@ -322,17 +271,10 @@ public class EntryDialog extends Dialog<Entry> implements Initializable {
             return false;
         }
 
-        if(StringUtils.isBlank(tfContainer.getText())){
+        if(scbSelectContainer.getSelectionModel().getSelectedItem() == null){
             Alerts.showErrorDialog(
                     "Fehler bei der Angabe des Behälters",
                     "Es muss ein Behälter angegeben werden");
-            return false;
-        }
-
-        if(amount <= 0) {
-            Alerts.showErrorDialog(
-                    "Falsche Angabe der Menge",
-                    "Die Menge muss mindestens 1 Liter betragen");
             return false;
         }
 
@@ -363,5 +305,13 @@ public class EntryDialog extends Dialog<Entry> implements Initializable {
 
     public void setEntry(Entry entry) {
         this.entry = entry;
+    }
+
+    public boolean isInitializeOnlyContainer() {
+        return initializeOnlyContainer;
+    }
+
+    public void setInitializeOnlyContainer(boolean initializeOnlyContainer) {
+        this.initializeOnlyContainer = initializeOnlyContainer;
     }
 }

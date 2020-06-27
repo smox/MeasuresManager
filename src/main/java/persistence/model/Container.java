@@ -34,6 +34,11 @@ public class Container {
 
     /* Boilerplate Code */
 
+    @Override
+    public String toString() {
+        return designation;
+    }
+
     public Container() {
         capacity = 10000;
         isAlwaysFullContainer = false;

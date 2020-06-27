@@ -4,20 +4,19 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
+<?import org.controlsfx.control.SearchableComboBox?>
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="550.0" prefWidth="500.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ui.components.dialogs.EntryDialog">
    <center>
       <GridPane prefWidth="440.0" vgap="10" BorderPane.alignment="CENTER">
         <columnConstraints>
-          <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" />
-          <ColumnConstraints halignment="RIGHT" minWidth="10.0" />
+          <ColumnConstraints minWidth="150.0" />
+          <ColumnConstraints hgrow="ALWAYS" halignment="RIGHT" minWidth="10.0" />
         </columnConstraints>
          <children>
             <Label text="Datum" GridPane.rowIndex="0" />
             <DatePicker fx:id="dpRealizedAt" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="0" />
             <Label text="Behälter" GridPane.rowIndex="1" />
-            <TextField fx:id="tfContainer" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-            <Label text="Menge in Liter" GridPane.rowIndex="2" />
-            <Spinner fx:id="spinAmount" editable="true" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <SearchableComboBox fx:id="scbSelectContainer" GridPane.columnIndex="1" GridPane.rowIndex="1" />
             <Label text="Maßnahmen" GridPane.rowIndex="3" />
             <BorderPane GridPane.columnIndex="1" GridPane.rowIndex="3">
                <right>

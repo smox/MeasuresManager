@@ -10,9 +10,9 @@
 
     <properties>
         <encoding>UTF-8</encoding>
-        <maven.compiler.release>13</maven.compiler.release>
+        <maven.compiler.release>14</maven.compiler.release>
         <h2.version>1.4.200</h2.version>
-        <version.jfx>13</version.jfx>
+        <version.jfx>14</version.jfx>
     </properties>
     <dependencies>
         <!-- UI libraries -->
@@ -73,19 +73,30 @@
             <artifactId>commons-lang3</artifactId>
             <version>3.10</version>
         </dependency>
+
+        <!-- Maven plugins -->
+        <dependency>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>3.8.1</version>
+            <type>maven-plugin</type>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.0</version>
+                <version>3.8.1</version>
                 <configuration>
                     <encoding>UTF-8</encoding>
                     <compilerArgs>
                         <arg>--add-opens</arg><arg>javafx.controls/javafx.scene.control.skin=ALL-UNNAMED</arg>
                         <arg>--add-exports</arg><arg>javafx.base/com.sun.javafx.event=org.controlsfx.controls</arg>
+
                     </compilerArgs>
+                    <source>14</source>
+                    <target>14</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -128,5 +139,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

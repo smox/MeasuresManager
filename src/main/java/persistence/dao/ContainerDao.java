@@ -23,7 +23,7 @@ public class ContainerDao extends AbstractDao<Container> {
     @Override
     public List<Container> findAll() {
         return (List<Container>) getCurrentSession().createCriteria(Container.class)
-                .add(Restrictions.isNull("deletedAt"))
+                .add(Restrictions.or(Restrictions.isNull("deletedAt"), Restrictions.gt("deletedAt", new Date())))
                 .list();
     }
 

@@ -19,9 +19,6 @@ public class Entry {
 
     private Date createdAt;
 
-    @Column(nullable = false)
-    private Integer amount;
-
     @ManyToOne
     @JoinColumn(nullable = false)
     private Container container;
@@ -68,14 +65,6 @@ public class Entry {
 
     public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
-    }
-
-    public Integer getAmount() {
-        return amount;
-    }
-
-    public void setAmount(Integer amount) {
-        this.amount = amount;
     }
 
     public Container getContainer() {

@@ -19,7 +19,7 @@ import persistence.service.*;
 import ui.components.dialogs.EntryDialog;
 import ui.components.dialogs.Alerts;
 import ui.components.dialogs.GenericAddDialog;
-import ui.components.dialogs.ManageContainers;
+import ui.components.dialogs.actions.IGenericReference;
 import ui.components.listview.WineCellView;
 import ui.components.listview.actions.WineDeleteAction;
 import ui.components.listview.actions.WineModifyAction;
@@ -49,8 +49,8 @@ public class MainWindow implements Initializable {
 
     public static Setting setting;
 
-    private ObservableList<Wine> observableWineList = FXCollections.observableArrayList();
-    private ObservableList<Entry> observableEntryList = FXCollections.observableArrayList();
+    private final ObservableList<Wine> observableWineList = FXCollections.observableArrayList();
+    private final ObservableList<Entry> observableEntryList = FXCollections.observableArrayList();
 
     @FXML
     private TableView<Entry> tblViewMeasures;
@@ -150,7 +150,6 @@ public class MainWindow implements Initializable {
                 editEntryDialog.setParent(this);
                 editEntryDialog.setEntryDialogSuccessAction((e) ->
                         loadEntriesIntoTableView(selectedWines.get(0), e));
-
                 editEntryDialog.initializeFields();
 
                 Scene scene = new Scene(parent);
@@ -175,7 +174,7 @@ public class MainWindow implements Initializable {
     }
 
     @FXML
-    void onOpenAddEntryDialog(ActionEvent event) throws IOException {
+    void openEntryDialog() throws IOException {
 
         // TODO Eventuell Mehrfachauswahl möglich?
         var selectedWines = lvWines.getSelectionModel().getSelectedItems();
@@ -191,12 +190,12 @@ public class MainWindow implements Initializable {
             ObservableList<Entry> selectedEntries = tblViewMeasures.getSelectionModel().getSelectedItems();
             if(CollectionUtils.isNotEmpty(selectedEntries)) {
                 Entry entry = selectedEntries.get(0);
-                //entryDialog.setContainer(entry.getContainer()); // FIXME
-                entryDialog.setSpinAmount(entry.getAmount());
+                entryDialog.setEntry(entry);
             }
 
             entryDialog.setWine(selectedWines.get(0));
-
+            entryDialog.setInitializeOnlyContainer(true);
+            entryDialog.initializeFields();
 
             Scene scene = new Scene(parent);
             Stage stage = new Stage();
@@ -214,7 +213,7 @@ public class MainWindow implements Initializable {
 
     private TableCell<Entry, Date> createEntryDateTableCellFactory() {
         return new TableCell<>() {
-            private SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
+            private final SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
 
             @Override
             protected void updateItem(Date item, boolean empty) {
@@ -294,21 +293,21 @@ public class MainWindow implements Initializable {
         observableWineList.addAll(wines);
     }
 
-    public void addWine(ActionEvent actionEvent) {
-        new GenericAddDialog(
+    public void addWine() {
+        new GenericAddDialog<>(
                 "Neuen Wein hinzufügen",
                 "Neuer Wein",
                 "Bitte gib hier den Namen des neuen Wein ein:",
                 "Name des Weins",
-                this::addWineAction
+                this::addWineAction,
+                null
         );
     }
 
-    private void addWineAction(Optional<String> result) {
-        String nameOfWine = result.get().trim();
+    private void addWineAction(String nameOfWine, IGenericReference<Object> nothing) {
 
         var wine = wineService.findByNameAndYear(nameOfWine, setting.getCurrentYear());
-        System.out.println(wine);
+
         if(wine == null) {
             wine = new Wine();
             wine.setName(nameOfWine);
@@ -323,7 +322,7 @@ public class MainWindow implements Initializable {
 
     }
 
-    public void openWindowManageContainers(ActionEvent actionEvent) {
+    public void openWindowManageContainers() {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/ui/components/dialogs/ManageContainers.fxml"));
             Parent fxmlWindow = fxmlLoader.load();
