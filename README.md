@@ -2,7 +2,7 @@
 A small application to handle the measures of a vintner
 Application is still in development. Use it at your own risk!
 
-Tech Stack: Java13, JavaFX13, ControlsFX 11, Hibernate, Maven,  H2 (file based)
+Tech Stack: Java14, JavaFX14, ControlsFX 11, Hibernate, Maven,  H2 (file based)
 
 
 System requirements:
