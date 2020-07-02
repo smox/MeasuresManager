@@ -36,9 +36,6 @@ public class Setting {
     @Column(name = DELETED_AT)
     private Date deletedAt;
 
-    @Column(name = HOME_DIRECTORY)
-    private String homeDirectory;
-
     public Setting(){}
 
 
@@ -73,14 +70,6 @@ public class Setting {
 
     public void setCurrentYear(String currentYear) {
         this.currentYear = currentYear;
-    }
-
-    public String getHomeDirectory() {
-        return homeDirectory;
-    }
-
-    public void setHomeDirectory(String homeDirectory) {
-        this.homeDirectory = homeDirectory;
     }
 
     public String getCompanyName() {

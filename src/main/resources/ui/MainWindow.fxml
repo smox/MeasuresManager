@@ -16,6 +16,11 @@
               <MenuItem mnemonicParsing="false" onAction="#closeWindowEvent" text="Schließen" />
             </items>
           </Menu>
+            <Menu text="Verwalten">
+                <items>
+                    <MenuItem text="Tanks verwalten" onAction="#openWindowManageContainers" />
+                </items>
+            </Menu>
           <Menu mnemonicParsing="false" text="Datensicherung">
             <items>
               <MenuItem disable="true" mnemonicParsing="false" text="Sicherungen verwalten" />
@@ -51,7 +56,10 @@
             <BorderPane>
                <center>
                   <TableView fx:id="tblViewMeasures" BorderPane.alignment="CENTER">
-                    <columns>
+                      <placeholder>
+                          <Label text="Keine Maßnahmen zum ausgewählten Wein vorhanden"/>
+                      </placeholder>
+                      <columns>
                         <TableColumn fx:id="tblViewColRealizedAt" minWidth="-1.0" prefWidth="60.0" style="width: 20%;" text="Datum">
                             <cellValueFactory>
                                 <PropertyValueFactory property="realizedAt" />
@@ -62,17 +70,17 @@
                                 <PropertyValueFactory property="container" />
                             </cellValueFactory>
                         </TableColumn>
-                        <TableColumn minWidth="-1.0" text="Menge (L)">
-                            <cellValueFactory>
-                                <PropertyValueFactory property="amount" />
-                            </cellValueFactory>
-                        </TableColumn>
                         <TableColumn minWidth="-1.0" text="Maßnahmen">
                             <cellValueFactory>
-                                <PropertyValueFactory property="measures" />
+                                <PropertyValueFactory property="measure" />
                             </cellValueFactory>
                         </TableColumn>
-                    </columns>
+                        <TableColumn minWidth="200.0" text="Zusätzliche Informationen">
+                            <cellValueFactory>
+                                <PropertyValueFactory property="additionalInformation" />
+                            </cellValueFactory>
+                        </TableColumn>
+                      </columns>
                      <columnResizePolicy>
                         <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                      </columnResizePolicy>
@@ -81,7 +89,7 @@
                <bottom>
                   <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
                     <buttons>
-                      <Button defaultButton="true" mnemonicParsing="false" onAction="#onOpenAddEntryDialog" text="Neuen Eintrag hinzufügen" />
+                      <Button defaultButton="true" mnemonicParsing="false" onAction="#openEntryDialog" text="Neuen Eintrag hinzufügen" />
                     </buttons>
                      <padding>
                         <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />

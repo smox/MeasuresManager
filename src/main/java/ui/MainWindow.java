@@ -16,10 +16,10 @@ import persistence.model.Entry;
 import persistence.model.Setting;
 import persistence.model.Wine;
 import persistence.service.*;
-import ui.components.dialogs.AddEntryDialog;
+import ui.components.dialogs.EntryDialog;
 import ui.components.dialogs.Alerts;
-import ui.components.dialogs.EditEntryDialog;
 import ui.components.dialogs.GenericAddDialog;
+import ui.components.dialogs.actions.IGenericReference;
 import ui.components.listview.WineCellView;
 import ui.components.listview.actions.WineDeleteAction;
 import ui.components.listview.actions.WineModifyAction;
@@ -42,12 +42,15 @@ public class MainWindow implements Initializable {
     public static EntryService entryService = new EntryService();
     public static SettingService settingService = new SettingService();
     public static MeasureService measureService = new MeasureService();
-    public static ContainerAmountMapService containerAmountMapService = new ContainerAmountMapService();
+    public static ContainerService containerService = new ContainerService();
+    public static ContainerTypeService containerTypeService = new ContainerTypeService();
+    public static LocationService locationService = new LocationService();
+
 
     public static Setting setting;
 
-    private ObservableList<Wine> observableWineList = FXCollections.observableArrayList();
-    private ObservableList<Entry> observableEntryList = FXCollections.observableArrayList();
+    private final ObservableList<Wine> observableWineList = FXCollections.observableArrayList();
+    private final ObservableList<Entry> observableEntryList = FXCollections.observableArrayList();
 
     @FXML
     private TableView<Entry> tblViewMeasures;
@@ -87,7 +90,6 @@ public class MainWindow implements Initializable {
         addButtonActions();
 
         lvWines.setCellFactory(lvWines -> new WineCellView(wineDeleteAction, wineModifyAction, wineSelectAction));
-
         tblViewColRealizedAt.setCellFactory(column -> createEntryDateTableCellFactory());
     }
 
@@ -140,14 +142,14 @@ public class MainWindow implements Initializable {
 
         if(CollectionUtils.isNotEmpty(selectedEntries)) {
             try {
-                FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/ui/components/dialogs/EditEntryDialog.fxml"));
+                FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/ui/components/dialogs/EntryDialog.fxml"));
                 Parent parent = fxmlLoader.load();
-                EditEntryDialog editEntryDialog = fxmlLoader.getController();
+                EntryDialog editEntryDialog = fxmlLoader.getController();
+
                 editEntryDialog.setEntry(selectedEntries.get(0));
                 editEntryDialog.setParent(this);
-                editEntryDialog.setAddEntryDialogSuccessAction((e) ->
+                editEntryDialog.setEntryDialogSuccessAction((e) ->
                         loadEntriesIntoTableView(selectedWines.get(0), e));
-
                 editEntryDialog.initializeFields();
 
                 Scene scene = new Scene(parent);
@@ -172,21 +174,28 @@ public class MainWindow implements Initializable {
     }
 
     @FXML
-    void onOpenAddEntryDialog(ActionEvent event) throws IOException {
+    void openEntryDialog() throws IOException {
 
         // TODO Eventuell Mehrfachauswahl möglich?
         var selectedWines = lvWines.getSelectionModel().getSelectedItems();
 
         if(CollectionUtils.isNotEmpty(selectedWines)) {
 
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/ui/components/dialogs/AddEntryDialog.fxml"));
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/ui/components/dialogs/EntryDialog.fxml"));
             Parent parent = fxmlLoader.load();
-            AddEntryDialog addEntryDialog = fxmlLoader.getController();
-            addEntryDialog.setParent(this);
-            addEntryDialog.setAddEntryDialogSuccessAction((entry) -> loadEntriesIntoTableView(selectedWines.get(0), entry));
+            EntryDialog entryDialog = fxmlLoader.getController();
+            entryDialog.setParent(this);
+            entryDialog.setEntryDialogSuccessAction((entry) -> loadEntriesIntoTableView(selectedWines.get(0), entry));
 
-            addEntryDialog.setWine(selectedWines.get(0));
-            addEntryDialog.setYear(setting.getCurrentYear());
+            ObservableList<Entry> selectedEntries = tblViewMeasures.getSelectionModel().getSelectedItems();
+            if(CollectionUtils.isNotEmpty(selectedEntries)) {
+                Entry entry = selectedEntries.get(0);
+                entryDialog.setEntry(entry);
+            }
+
+            entryDialog.setWine(selectedWines.get(0));
+            entryDialog.setInitializeOnlyContainer(true);
+            entryDialog.initializeFields();
 
             Scene scene = new Scene(parent);
             Stage stage = new Stage();
@@ -204,7 +213,7 @@ public class MainWindow implements Initializable {
 
     private TableCell<Entry, Date> createEntryDateTableCellFactory() {
         return new TableCell<>() {
-            private SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
+            private final SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
 
             @Override
             protected void updateItem(Date item, boolean empty) {
@@ -284,21 +293,21 @@ public class MainWindow implements Initializable {
         observableWineList.addAll(wines);
     }
 
-    public void addWine(ActionEvent actionEvent) {
-        new GenericAddDialog(
+    public void addWine() {
+        new GenericAddDialog<>(
                 "Neuen Wein hinzufügen",
                 "Neuer Wein",
                 "Bitte gib hier den Namen des neuen Wein ein:",
                 "Name des Weins",
-                this::addWineAction
+                this::addWineAction,
+                null
         );
     }
 
-    private void addWineAction(Optional<String> result) {
-        String nameOfWine = result.get().trim();
+    private void addWineAction(String nameOfWine, IGenericReference<Object> nothing) {
 
         var wine = wineService.findByNameAndYear(nameOfWine, setting.getCurrentYear());
-        System.out.println(wine);
+
         if(wine == null) {
             wine = new Wine();
             wine.setName(nameOfWine);
@@ -311,5 +320,22 @@ public class MainWindow implements Initializable {
                     "Der Wein mit dem Namen "+wine.getName()+" gibt es in dem Jahr "+wine.getYear()+" bereits!");
         }
 
+    }
+
+    public void openWindowManageContainers() {
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/ui/components/dialogs/ManageContainers.fxml"));
+            Parent fxmlWindow = fxmlLoader.load();
+
+            Scene scene = new Scene(fxmlWindow);
+            Stage stage = new Stage();
+            stage.setTitle("Eintrag bearbeiten");
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setScene(scene);
+            stage.showAndWait();
+        } catch (IOException e) {
+            // TODO Logging
+            e.printStackTrace();
+        }
     }
 }

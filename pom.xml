@@ -9,27 +9,28 @@
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <maven.compiler.release>13</maven.compiler.release>
+        <encoding>UTF-8</encoding>
+        <maven.compiler.release>14</maven.compiler.release>
+        <h2.version>1.4.200</h2.version>
+        <version.jfx>14</version.jfx>
     </properties>
-
-
     <dependencies>
         <!-- UI libraries -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx</artifactId>
-            <version>13</version>
+            <version>${version.jfx}</version>
             <type>pom</type>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
-            <version>13</version>
+            <version>${version.jfx}</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
-            <version>13</version>
+            <version>${version.jfx}</version>
         </dependency>
         <dependency>
             <groupId>org.controlsfx</groupId>
@@ -42,6 +43,11 @@
             <groupId>javax.persistence</groupId>
             <artifactId>javax.persistence-api</artifactId>
             <version>2.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+            <version>6.3.2</version>
         </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
@@ -57,8 +63,23 @@
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <version>1.4.200</version>
+            <version>${h2.version}</version>
             <scope>runtime</scope>
+        </dependency>
+
+        <!-- Util libraries -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.10</version>
+        </dependency>
+
+        <!-- Maven plugins -->
+        <dependency>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>3.8.1</version>
+            <type>maven-plugin</type>
         </dependency>
     </dependencies>
     <build>
@@ -66,9 +87,16 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.0</version>
+                <version>3.8.1</version>
                 <configuration>
                     <encoding>UTF-8</encoding>
+                    <compilerArgs>
+                        <arg>--add-opens</arg><arg>javafx.controls/javafx.scene.control.skin=ALL-UNNAMED</arg>
+                        <arg>--add-exports</arg><arg>javafx.base/com.sun.javafx.event=org.controlsfx.controls</arg>
+
+                    </compilerArgs>
+                    <source>14</source>
+                    <target>14</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -76,10 +104,39 @@
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>0.0.4</version>
                 <configuration>
+                    <commandlineArgs>
+                        --add-modules=javafx.controls,javafx.fxml
+                        --add-opens=javafx.controls/javafx.scene.control=ALL-UNNAMED
+                        --add-opens=javafx.graphics/javafx.css=ALL-UNNAMED
+                        --add-exports=javafx.base/com.sun.javafx.event=org.controlsfx.controls
+                        --add-exports=javafx.base/com.sun.javafx.event=ALL-UNNAMED
+                    </commandlineArgs>
+                    <options>
+                        <option>--add-modules</option><option>javafx.controls,javafx.fxml</option>
+                        <option>--add-opens</option><option>javafx.controls/javafx.scene.control=ALL-UNNAMED</option>
+                        <option>--add-opens</option><option>javafx.graphics/javafx.css=ALL-UNNAMED</option>
+                        <option>--add-exports</option><option>javafx.base/com.sun.javafx.event=org.controlsfx.controls</option>
+                        <option>--add-exports</option><option>javafx.base/com.sun.javafx.event=ALL-UNNAMED</option>
+                    </options>
                     <mainClass>MeasuresManager</mainClass>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.flywaydb</groupId>
+                <artifactId>flyway-maven-plugin</artifactId>
+                <version>6.3.2</version>
+                <configuration>
+                    <url>jdbc:h2:file:./database</url>
+                    <user>sa</user>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.h2database</groupId>
+                        <artifactId>h2</artifactId>
+                        <version>${h2.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
         </plugins>
     </build>
-
 </project>

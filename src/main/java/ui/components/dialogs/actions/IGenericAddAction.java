@@ -1,7 +1,5 @@
 package ui.components.dialogs.actions;
 
-import java.util.Optional;
-
-public interface IGenericAddAction {
-    void genericAddAction(Optional<String> result);
+public interface IGenericAddAction<T> {
+    void genericAddAction(String result, IGenericReference<T> reference);
 }
