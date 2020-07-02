@@ -246,13 +246,18 @@ public class EntryDialog extends Dialog<Entry> implements Initializable {
                 newEntry = true;
             }
 
+            // Dirty hack - when this flag is set, the user want to add a new entry
+            newEntry = initializeOnlyContainer;
+
             entry.setRealizedAt(realizedAt);
             entry.setContainer(selectedItem);
             entry.setMeasure(selectedMeasure.getValue());
 
             if(newEntry) {
+                System.out.println("Saving new entry...");
                 MainWindow.entryService.persist(entry);
             } else {
+                System.out.println("Updating existing entry...");
                 MainWindow.entryService.update(entry);
             }
 
