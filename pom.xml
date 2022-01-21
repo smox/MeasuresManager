@@ -11,7 +11,7 @@
     <properties>
         <encoding>UTF-8</encoding>
         <maven.compiler.release>14</maven.compiler.release>
-        <h2.version>1.4.200</h2.version>
+        <h2.version>2.1.210</h2.version>
         <version.jfx>14</version.jfx>
     </properties>
     <dependencies>
